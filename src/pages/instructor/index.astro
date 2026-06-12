@@ -1,0 +1,39 @@
+---
+// Panel del instructor: sus grupos del día (RLS filtra por instructor)
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const { supabase, session } = Astro.locals;
+
+const { data: groups } = await supabase
+  .from('groups')
+  .select('id, name, capacity, levels(name), group_schedules(weekday, start_time, end_time)')
+  .eq('is_active', true)
+  .order('name');
+---
+
+<BaseLayout title="Panel instructor">
+  <div class="mx-auto max-w-2xl p-4">
+    <header class="flex items-center justify-between py-4">
+      <h1 class="text-lg font-bold text-brand-700">Mis grupos</h1>
+      <form method="post" action="/api/auth/signout">
+        <button class="text-sm text-brand-600">Salir</button>
+      </form>
+    </header>
+    <p class="mb-4 text-sm text-slate-500">{session?.profile.full_name}</p>
+    <div class="space-y-3">
+      {
+        (groups ?? []).map((g) => (
+          <a
+            href={`/instructor/grupo/${g.id}`}
+            class="block rounded-lg bg-white p-4 shadow-sm"
+          >
+            <p class="font-medium">{g.name}</p>
+            <p class="text-sm text-slate-500">
+              {(g.levels as any)?.name} · cupo {g.capacity}
+            </p>
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</BaseLayout>

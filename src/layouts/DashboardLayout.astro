@@ -1,0 +1,55 @@
+---
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  title?: string;
+}
+const { title } = Astro.props;
+const session = Astro.locals.session!;
+
+const nav = [
+  { href: '/dashboard', label: 'Inicio' },
+  { href: '/dashboard/alumnos', label: 'Alumnos' },
+  { href: '/dashboard/grupos', label: 'Grupos' },
+  { href: '/dashboard/pagos', label: 'Pagos' },
+  { href: '/dashboard/asistencia', label: 'Asistencia' },
+  { href: '/dashboard/reportes', label: 'Reportes' },
+];
+---
+
+<BaseLayout title={title}>
+  <div class="flex min-h-screen">
+    <aside class="w-56 shrink-0 bg-brand-700 text-white">
+      <div class="p-4 text-lg font-bold">🏊 Natación</div>
+      <nav class="flex flex-col gap-1 px-2">
+        {
+          nav.map((item) => (
+            <a
+              href={item.href}
+              class="rounded px-3 py-2 text-sm hover:bg-brand-600"
+            >
+              {item.label}
+            </a>
+          ))
+        }
+      </nav>
+    </aside>
+    <div class="flex-1">
+      <header class="flex items-center justify-between border-b bg-white px-6 py-3">
+        <h1 class="font-semibold">{title}</h1>
+        <div class="flex items-center gap-3 text-sm">
+          <span>{session.profile.full_name}</span>
+          <span class="rounded bg-slate-200 px-2 py-0.5 text-xs">
+            {session.profile.role}
+          </span>
+          <form method="post" action="/api/auth/signout">
+            <button class="text-brand-600 hover:underline">Salir</button>
+          </form>
+        </div>
+      </header>
+      <main class="p-6">
+        <slot />
+      </main>
+    </div>
+  </div>
+</BaseLayout>

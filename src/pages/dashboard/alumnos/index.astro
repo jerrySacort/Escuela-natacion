@@ -1,0 +1,21 @@
+---
+import DashboardLayout from '@/layouts/DashboardLayout.astro';
+import StudentTable from '@/components/StudentTable';
+
+const { supabase } = Astro.locals;
+
+const { data: students } = await supabase
+  .from('students')
+  .select('id, first_name, last_name, birth_date, is_active, levels(name)')
+  .order('last_name');
+
+// Supabase tipa la relación FK como arreglo sin tipos generados; normalizamos
+const rows = (students ?? []).map((s) => ({
+  ...s,
+  levels: Array.isArray(s.levels) ? (s.levels[0] ?? null) : s.levels,
+}));
+---
+
+<DashboardLayout title="Alumnos">
+  <StudentTable client:load students={rows} />
+</DashboardLayout>

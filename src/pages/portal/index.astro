@@ -1,0 +1,54 @@
+---
+// Portal de padres: solo ven a sus hijos (RLS via student_guardians)
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const { supabase, session } = Astro.locals;
+
+const { data: children } = await supabase
+  .from('students')
+  .select('id, first_name, last_name, photo_url, levels(name)')
+  .order('first_name');
+---
+
+<BaseLayout title="Portal de padres">
+  <div class="mx-auto max-w-lg p-4">
+    <header class="flex items-center justify-between py-4">
+      <h1 class="text-lg font-bold text-brand-700">Mis hijos</h1>
+      <form method="post" action="/api/auth/signout">
+        <button class="text-sm text-brand-600">Salir</button>
+      </form>
+    </header>
+    <p class="mb-4 text-sm text-slate-500">
+      Hola, {session?.profile.full_name}
+    </p>
+    <div class="space-y-3">
+      {
+        (children ?? []).map((c) => (
+          <a
+            href={`/portal/alumno/${c.id}`}
+            class="flex items-center gap-3 rounded-lg bg-white p-4 shadow-sm"
+          >
+            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-brand-50 text-xl">
+              🏊
+            </div>
+            <div>
+              <p class="font-medium">
+                {c.first_name} {c.last_name}
+              </p>
+              <p class="text-sm text-slate-500">
+                {(c.levels as any)?.name ?? 'Sin nivel asignado'}
+              </p>
+            </div>
+          </a>
+        ))
+      }
+      {
+        (children ?? []).length === 0 && (
+          <p class="py-8 text-center text-slate-400">
+            No hay alumnos vinculados a tu cuenta.
+          </p>
+        )
+      }
+    </div>
+  </div>
+</BaseLayout>

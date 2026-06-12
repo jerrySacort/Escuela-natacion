@@ -1,0 +1,49 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const error = Astro.url.searchParams.get('error');
+---
+
+<BaseLayout title="Iniciar sesión">
+  <div class="flex min-h-screen items-center justify-center">
+    <form
+      method="post"
+      action="/api/auth/signin"
+      class="w-full max-w-sm space-y-4 rounded-lg bg-white p-8 shadow"
+    >
+      <h1 class="text-center text-xl font-bold text-brand-700">
+        🏊 Escuela de Natación
+      </h1>
+      {
+        error && (
+          <p class="rounded bg-red-50 p-2 text-sm text-red-700">
+            Credenciales incorrectas. Intenta de nuevo.
+          </p>
+        )
+      }
+      <label class="block text-sm">
+        Correo
+        <input
+          type="email"
+          name="email"
+          required
+          class="mt-1 w-full rounded border px-3 py-2"
+        />
+      </label>
+      <label class="block text-sm">
+        Contraseña
+        <input
+          type="password"
+          name="password"
+          required
+          class="mt-1 w-full rounded border px-3 py-2"
+        />
+      </label>
+      <button
+        class="w-full rounded bg-brand-600 py-2 font-medium text-white hover:bg-brand-700"
+      >
+        Entrar
+      </button>
+    </form>
+  </div>
+</BaseLayout>
