@@ -1,6 +1,0 @@
----
-import { homeForRole } from '@/lib/auth';
-
-const session = Astro.locals.session;
-return Astro.redirect(session ? homeForRole(session.profile.role) : '/login');
----
