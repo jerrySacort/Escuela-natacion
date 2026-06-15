@@ -5,4 +5,522 @@
   --color-brand-500: #0e7bb8;
   --color-brand-600: #0a608f;
   --color-brand-700: #084a6e;
+  --color-cream: #f7f3e8;
+}
+
+/* Variables de tema (el tema por defecto es "ocean") */
+:root {
+  --app-bg:
+    radial-gradient(60rem 40rem at 80% 0%, rgba(14, 123, 184, 0.4), transparent 60%),
+    radial-gradient(50rem 35rem at 5% 95%, rgba(20, 160, 180, 0.25), transparent 60%),
+    radial-gradient(40rem 30rem at 50% 50%, rgba(8, 74, 110, 0.45), transparent 70%),
+    linear-gradient(135deg, #081420 0%, #0d2436 50%, #081420 100%);
+  --modal-bg: #0d2436;
+}
+
+html[data-theme='sunset'] {
+  --color-cream: #fde3c4;
+  --color-brand-500: #e8915a;
+  --color-brand-600: #c46a3a;
+  --color-brand-700: #8f4a2a;
+  --modal-bg: #2a1530;
+  --app-bg:
+    radial-gradient(60rem 40rem at 80% 0%, rgba(244, 130, 90, 0.38), transparent 60%),
+    radial-gradient(50rem 35rem at 5% 95%, rgba(170, 80, 200, 0.3), transparent 60%),
+    radial-gradient(40rem 30rem at 50% 50%, rgba(120, 40, 90, 0.45), transparent 70%),
+    linear-gradient(135deg, #190b1d 0%, #2a1530 50%, #190b1d 100%);
+}
+html[data-theme='forest'] {
+  --color-cream: #cdeed9;
+  --color-brand-500: #1fae7a;
+  --color-brand-600: #0f8f63;
+  --color-brand-700: #0a6e4e;
+  --modal-bg: #0d2418;
+  --app-bg:
+    radial-gradient(60rem 40rem at 80% 0%, rgba(34, 170, 120, 0.35), transparent 60%),
+    radial-gradient(50rem 35rem at 5% 95%, rgba(40, 150, 110, 0.28), transparent 60%),
+    radial-gradient(40rem 30rem at 50% 50%, rgba(10, 80, 60, 0.45), transparent 70%),
+    linear-gradient(135deg, #07150e 0%, #0d2418 50%, #07150e 100%);
+}
+html[data-theme='cherry'] {
+  --color-cream: #f6d4dd;
+  --color-brand-500: #d65a78;
+  --color-brand-600: #b03a58;
+  --color-brand-700: #8a2440;
+  --modal-bg: #2a0c16;
+  --app-bg:
+    radial-gradient(60rem 40rem at 80% 0%, rgba(214, 90, 120, 0.35), transparent 60%),
+    radial-gradient(50rem 35rem at 5% 95%, rgba(150, 50, 90, 0.3), transparent 60%),
+    radial-gradient(40rem 30rem at 50% 50%, rgba(110, 30, 55, 0.45), transparent 70%),
+    linear-gradient(135deg, #190810 0%, #2a0c16 50%, #190810 100%);
+}
+html[data-theme='midnight'] {
+  --color-cream: #d6dcff;
+  --color-brand-500: #5a6cf0;
+  --color-brand-600: #3a4ad0;
+  --color-brand-700: #2430a8;
+  --modal-bg: #0b1024;
+  --app-bg:
+    radial-gradient(60rem 40rem at 80% 0%, rgba(90, 108, 240, 0.32), transparent 60%),
+    radial-gradient(50rem 35rem at 5% 95%, rgba(60, 80, 200, 0.25), transparent 60%),
+    radial-gradient(40rem 30rem at 50% 50%, rgba(30, 40, 120, 0.4), transparent 70%),
+    linear-gradient(135deg, #060814 0%, #0b1024 50%, #060814 100%);
+}
+html[data-theme='grape'] {
+  --color-cream: #e7d9ff;
+  --color-brand-500: #9a6cf0;
+  --color-brand-600: #7a4cd0;
+  --color-brand-700: #5a32a8;
+  --modal-bg: #1c1230;
+  --app-bg:
+    radial-gradient(60rem 40rem at 80% 0%, rgba(150, 108, 240, 0.34), transparent 60%),
+    radial-gradient(50rem 35rem at 5% 95%, rgba(110, 70, 200, 0.28), transparent 60%),
+    radial-gradient(40rem 30rem at 50% 50%, rgba(70, 40, 130, 0.45), transparent 70%),
+    linear-gradient(135deg, #100a1e 0%, #1c1230 50%, #100a1e 100%);
+}
+html[data-theme='steel'] {
+  --color-cream: #dbe4ee;
+  --color-brand-500: #6b8fc0;
+  --color-brand-600: #4f6f9e;
+  --color-brand-700: #38527a;
+  --modal-bg: #141c26;
+  --app-bg:
+    radial-gradient(60rem 40rem at 80% 0%, rgba(110, 140, 180, 0.3), transparent 60%),
+    radial-gradient(50rem 35rem at 5% 95%, rgba(80, 110, 150, 0.24), transparent 60%),
+    radial-gradient(40rem 30rem at 50% 50%, rgba(40, 60, 90, 0.45), transparent 70%),
+    linear-gradient(135deg, #0a0f16 0%, #141c26 50%, #0a0f16 100%);
+}
+html[data-theme='coral'] {
+  --color-cream: #ffd9cc;
+  --color-brand-500: #f0805a;
+  --color-brand-600: #cc5e3a;
+  --color-brand-700: #9e4228;
+  --modal-bg: #221310;
+  --app-bg:
+    radial-gradient(60rem 40rem at 80% 0%, rgba(240, 128, 90, 0.34), transparent 60%),
+    radial-gradient(50rem 35rem at 5% 95%, rgba(40, 150, 150, 0.26), transparent 60%),
+    radial-gradient(40rem 30rem at 50% 50%, rgba(110, 50, 40, 0.42), transparent 70%),
+    linear-gradient(135deg, #140b09 0%, #221310 50%, #140b09 100%);
+}
+html[data-theme='gold'] {
+  --color-cream: #f3e3b0;
+  --color-brand-500: #d9a93a;
+  --color-brand-600: #b3861f;
+  --color-brand-700: #876214;
+  --modal-bg: #221b0c;
+  --app-bg:
+    radial-gradient(60rem 40rem at 80% 0%, rgba(217, 169, 58, 0.32), transparent 60%),
+    radial-gradient(50rem 35rem at 5% 95%, rgba(150, 110, 40, 0.26), transparent 60%),
+    radial-gradient(40rem 30rem at 50% 50%, rgba(90, 65, 20, 0.42), transparent 70%),
+    linear-gradient(135deg, #13100a 0%, #221b0c 50%, #13100a 100%);
+}
+html[data-theme='garnet'] {
+  --color-cream: #fcd9dd;
+  --color-brand-500: #e0455a;
+  --color-brand-600: #c02d44;
+  --color-brand-700: #8f1f33;
+  --modal-bg: #2d0f16;
+  --app-bg:
+    radial-gradient(60rem 40rem at 80% 0%, rgba(224, 69, 90, 0.4), transparent 60%),
+    radial-gradient(50rem 35rem at 5% 95%, rgba(255, 150, 170, 0.18), transparent 60%),
+    radial-gradient(40rem 30rem at 50% 50%, rgba(140, 25, 45, 0.5), transparent 70%),
+    linear-gradient(135deg, #1a060b 0%, #2d0f16 50%, #1a060b 100%);
+}
+html[data-theme='neon'] {
+  --color-cream: #f0d9f7;
+  --color-brand-500: #d633e8;
+  --color-brand-600: #a81ab8;
+  --color-brand-700: #6f1080;
+  --modal-bg: #120817;
+  --app-bg:
+    radial-gradient(55rem 38rem at 8% 0%, rgba(214, 51, 232, 0.45), transparent 58%),
+    radial-gradient(45rem 32rem at 95% 100%, rgba(150, 30, 200, 0.28), transparent 60%),
+    radial-gradient(40rem 30rem at 50% 45%, rgba(110, 16, 128, 0.4), transparent 70%),
+    linear-gradient(135deg, #060309 0%, #120817 50%, #060309 100%);
+}
+
+/* Fondo del dashboard (usa la variable del tema) */
+.dash-bg {
+  background: var(--app-bg);
+}
+
+/* Panel y tarjetas de vidrio */
+.glass {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.glass-soft {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Animaciones de modal */
+@keyframes overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-overlay {
+  animation: overlay-in 0.18s ease-out;
+}
+
+.modal-panel {
+  background-color: var(--modal-bg);
+  animation: modal-in 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Donut de progreso (conic-gradient + mask) */
+.donut {
+  border-radius: 9999px;
+  mask: radial-gradient(closest-side, transparent 68%, black 69%);
+  -webkit-mask: radial-gradient(closest-side, transparent 68%, black 69%);
+}
+
+/* Panel desplegable de avisos */
+@keyframes dropdown-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.dropdown-in {
+  animation: dropdown-in 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: top right;
+}
+
+/* Panel de avisos: fondo sólido con el color del tema (--modal-bg), sin
+   transparencia, para que no se cuele el contenido del dashboard y el
+   texto se lea con total claridad respetando el tema activo. */
+.notif-panel {
+  background-color: var(--modal-bg);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+/* Campanita que se balancea cuando hay avisos sin leer */
+@keyframes bell-ring {
+  0%, 70%, 100% { transform: rotate(0); }
+  10%, 30%, 50% { transform: rotate(12deg); }
+  20%, 40%, 60% { transform: rotate(-12deg); }
+}
+
+.bell-ring {
+  display: inline-block;
+  transform-origin: top center;
+  animation: bell-ring 2.2s ease-in-out 1s infinite;
+}
+
+/* Oculta la barra de scroll horizontal (p. ej. en el nav del dashboard) */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Tablero de alberca: nadadores con movimiento sutil */
+@keyframes swim {
+  0%, 100% { transform: translateX(0) translateY(0) rotate(-1.5deg); }
+  50% { transform: translateX(7px) translateY(-2px) rotate(1.5deg); }
+}
+.swimmer-anim {
+  animation: swim 3s ease-in-out infinite;
+}
+.group:hover .swimmer-anim {
+  animation-play-state: paused;
+}
+
+/* Reflejos del agua que se desplazan lentamente */
+@keyframes water-shift {
+  from { background-position: 0 0; }
+  to { background-position: 80px 0; }
+}
+.water-lane {
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.06) 0px,
+    rgba(255, 255, 255, 0.06) 2px,
+    transparent 2px,
+    transparent 40px
+  );
+  animation: water-shift 6s linear infinite;
+}
+
+/* Corchera (lane rope): flotadores rojo/blanco/azul con leve flotación */
+@keyframes rope-drift {
+  from { background-position: 0 0; }
+  to { background-position: 44px 0; }
+}
+@keyframes rope-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(1.5px); }
+}
+.lane-rope {
+  height: 10px;
+  margin: 0 6px;
+  border-radius: 9999px;
+  background: repeating-linear-gradient(
+    90deg,
+    #ef4444 0 11px,
+    #f8fafc 11px 22px,
+    #2563eb 22px 33px,
+    #f8fafc 33px 44px
+  );
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.45),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Agua de alberca con reflejos de luz (cáusticas) animados */
+.pool-water {
+  background: linear-gradient(180deg, #d6effb 0%, #2b8fd8 45%, #1a36a0 100%);
+}
+.wave-layer {
+  animation-name: wave-x;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  transform-box: fill-box;
+  will-change: transform;
+}
+@keyframes wave-x {
+  from { transform: translateX(0); }
+  to { transform: translateX(-200px); }
+}
+.pool-caustics {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.6;
+  background-image:
+    radial-gradient(60% 40% at 20% 30%, rgba(255, 255, 255, 0.35), transparent 60%),
+    radial-gradient(50% 35% at 70% 65%, rgba(220, 250, 255, 0.3), transparent 60%),
+    radial-gradient(45% 30% at 45% 85%, rgba(255, 255, 255, 0.25), transparent 60%),
+    radial-gradient(40% 50% at 85% 20%, rgba(200, 245, 255, 0.28), transparent 60%);
+  filter: blur(7px);
+  animation: caustics 16s ease-in-out infinite alternate;
+}
+.pool-caustics::after {
+  content: '';
+  position: absolute;
+  inset: -12%;
+  mix-blend-mode: screen;
+  background-image:
+    radial-gradient(34% 24% at 30% 40%, rgba(255, 255, 255, 0.3), transparent 55%),
+    radial-gradient(30% 22% at 65% 28%, rgba(255, 255, 255, 0.24), transparent 55%),
+    radial-gradient(28% 20% at 82% 72%, rgba(200, 245, 255, 0.24), transparent 55%),
+    radial-gradient(30% 24% at 14% 78%, rgba(255, 255, 255, 0.22), transparent 55%);
+  filter: blur(9px);
+  animation: caustics2 22s ease-in-out infinite alternate;
+}
+@keyframes caustics {
+  0% { transform: scale(1.05) translate(0, 0); }
+  50% { transform: scale(1.16) translate(2%, -1.5%); }
+  100% { transform: scale(1.08) translate(-2%, 1.5%); }
+}
+@keyframes caustics2 {
+  0% { transform: scale(1.1) translate(1.5%, 1%) rotate(0.5deg); }
+  100% { transform: scale(1.22) translate(-1.5%, -2%) rotate(-0.5deg); }
+}
+/* Paneo del video de agua: se desplaza de izquierda a derecha (inicio izquierda) */
+.pool-video {
+  width: 135%;
+  max-width: none;
+  animation: water-pan 34s ease-in-out infinite alternate;
+}
+@keyframes water-pan {
+  from { transform: translateX(0); }
+  to { transform: translateX(-22%); }
+}
+/* ============================================================
+   Animaciones y transiciones globales de la interfaz
+   ============================================================ */
+
+/* Entrada de página: desvanecido + leve subida */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes panel-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.992); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Curva tipo "spring": rebasa un poco el destino y se asienta (más viva) */
+:root {
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* El panel principal del dashboard aparece suavemente al cargar */
+.panel-enter {
+  animation: panel-in 0.55s var(--ease-out) both;
+}
+
+/* El contenido de cada sección entra con un ligero escalonado.
+   Se aplica a los hijos directos de <main>, así cada página
+   hereda la transición sin tocar sus componentes. */
+.dash-enter > * {
+  animation: fade-up 0.55s var(--ease-out) both;
+}
+.dash-enter > *:nth-child(1) { animation-delay: 0.04s; }
+.dash-enter > *:nth-child(2) { animation-delay: 0.12s; }
+.dash-enter > *:nth-child(3) { animation-delay: 0.2s; }
+.dash-enter > *:nth-child(4) { animation-delay: 0.28s; }
+.dash-enter > *:nth-child(5) { animation-delay: 0.36s; }
+.dash-enter > *:nth-child(n + 6) { animation-delay: 0.44s; }
+
+/* Reveal escalonado de las TARJETAS dentro de cada sección.
+   El auto-detector (script global) marca las tarjetas con .auto-card,
+   excluyendo píldoras/nav. Cada tarjeta de un mismo contenedor entra
+   en cascada. Es CSS puro, así que el contenido nunca queda oculto. */
+@keyframes card-reveal {
+  from { opacity: 0; transform: translateY(20px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.auto-card {
+  position: relative;
+  isolation: isolate;
+  animation: card-reveal 0.6s var(--ease-spring) both;
+  transition:
+    transform 0.3s var(--ease-spring),
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+  will-change: transform;
+}
+.auto-card:nth-child(1) { animation-delay: 0.05s; }
+.auto-card:nth-child(2) { animation-delay: 0.12s; }
+.auto-card:nth-child(3) { animation-delay: 0.19s; }
+.auto-card:nth-child(4) { animation-delay: 0.26s; }
+.auto-card:nth-child(5) { animation-delay: 0.33s; }
+.auto-card:nth-child(6) { animation-delay: 0.4s; }
+.auto-card:nth-child(n + 7) { animation-delay: 0.47s; }
+
+/* Elevación + glow del color del tema al pasar el cursor.
+   El glow sigue al cursor vía las variables --mx/--my (las fija el script);
+   si no hay script, queda centrado. */
+.auto-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1; /* sobre el fondo de la tarjeta, debajo del contenido */
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(
+    22rem 22rem at var(--mx, 50%) var(--my, 0%),
+    color-mix(in srgb, var(--color-brand-500) 30%, transparent),
+    transparent 60%
+  );
+}
+/* La elevación, el glow y el parallax solo se activan con un puntero fino
+   (mouse). En pantallas táctiles el :hover se quedaría "pegado" tras tocar,
+   así que se omiten; el reveal de entrada sí se mantiene en móvil. */
+@media (hover: hover) and (pointer: fine) {
+  .auto-card:hover {
+    transform: translateY(-5px);
+    box-shadow:
+      0 18px 40px -16px rgba(0, 0, 0, 0.6),
+      0 0 0 1px color-mix(in srgb, var(--color-brand-500) 40%, transparent),
+      0 8px 30px -8px color-mix(in srgb, var(--color-brand-500) 35%, transparent);
+  }
+  .auto-card:hover::before { opacity: 1; }
+
+  /* Inclinación 3D sutil siguiendo el cursor (parallax). El script fija
+     --tilt-x / --tilt-y; el CSS sólo describe cómo se combina. */
+  .auto-card.tilt {
+    transform:
+      perspective(900px)
+      rotateX(var(--tilt-x, 0deg))
+      rotateY(var(--tilt-y, 0deg))
+      translateY(-5px);
+    transition: transform 0.12s ease-out, box-shadow 0.3s ease;
+  }
+}
+
+/* Utilidades de entrada reutilizables */
+.anim-fade-up { animation: fade-up 0.55s var(--ease-out) both; }
+.anim-fade-in { animation: fade-in 0.5s ease-out both; }
+
+/* Transiciones suaves por defecto en controles interactivos */
+a,
+button,
+input,
+select,
+textarea,
+[role='button'] {
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+/* Botones: leve hundido al presionar */
+button:active,
+[role='button']:active {
+  transform: translateY(1px) scale(0.985);
+}
+
+/* Micro-interacción opcional manual: añadir clase .card-hover */
+.card-hover {
+  transition:
+    transform 0.25s var(--ease-spring),
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px -14px rgba(0, 0, 0, 0.55);
+  border-color: color-mix(in srgb, var(--color-brand-500) 35%, transparent);
+}
+
+/* Las barras de progreso animan su ancho al renderizarse/actualizarse */
+[class*='rounded-full'] > [style*='width'] {
+  transition: width 0.7s var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pool-caustics,
+  .pool-caustics::after,
+  .pool-video,
+  .wave-layer,
+  .swimmer-anim,
+  .lane-rope,
+  .panel-enter,
+  .dash-enter > *,
+  .auto-card,
+  .anim-fade-up,
+  .anim-fade-in {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+  .auto-card.tilt,
+  .auto-card:hover,
+  .card-hover:hover,
+  button:active,
+  [role='button']:active {
+    transform: none;
+  }
 }

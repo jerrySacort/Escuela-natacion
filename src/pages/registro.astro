@@ -1,0 +1,120 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { createSupabaseServer } from '@/lib/supabase';
+
+const supabase = createSupabaseServer(Astro.request, Astro.cookies);
+const { data: branches } = await supabase
+  .from('branches')
+  .select('id, name')
+  .order('name');
+
+const { data: orgRow } = await supabase
+  .from('org_settings')
+  .select('school_name, logo_url')
+  .eq('id', true)
+  .single();
+const org = orgRow ?? { school_name: 'Escuela de Natación', logo_url: null };
+
+const error = Astro.url.searchParams.get('error');
+const ok = Astro.url.searchParams.get('ok');
+
+const errorMessages: Record<string, string> = {
+  exists: 'Ya existe una cuenta con ese correo.',
+  weak: 'La contraseña debe tener al menos 8 caracteres.',
+  generic: 'No se pudo completar el registro. Intenta de nuevo.',
+};
+
+const inputClass =
+  'mt-1 w-full rounded-full border border-white/15 bg-white/5 px-4 py-2.5 text-white outline-none placeholder:text-white/30 focus:border-white/40';
+---
+
+<BaseLayout title="Crear cuenta">
+  <div class="dash-bg fixed inset-0 -z-10"></div>
+  <div class="flex min-h-screen items-center justify-center p-4 text-white">
+    {
+      ok ? (
+        <div class="glass w-full max-w-sm space-y-4 rounded-[2rem] p-8 text-center shadow-2xl">
+          <p class="text-4xl">📬</p>
+          <h1 class="text-2xl font-semibold tracking-tight">¡Casi listo!</h1>
+          <p class="text-sm text-white/60">
+            Te enviamos un correo de confirmación. Abre el enlace para activar
+            tu cuenta y después inicia sesión.
+          </p>
+          <a
+            href="/login"
+            class="inline-block rounded-full bg-cream px-6 py-2.5 font-semibold text-slate-900 shadow-lg transition hover:-translate-y-0.5"
+          >
+            Ir a iniciar sesión
+          </a>
+        </div>
+      ) : (
+        <form
+          method="post"
+          action="/api/auth/signup"
+          class="glass w-full max-w-sm space-y-4 rounded-[2rem] p-8 shadow-2xl"
+        >
+          <div class="flex flex-col items-center gap-1.5">
+            {
+              org.logo_url ? (
+                <img
+                  src={org.logo_url}
+                  alt={org.school_name}
+                  class="h-14 w-auto max-w-[220px] object-contain"
+                />
+              ) : (
+                <span class="text-3xl">🏊</span>
+              )
+            }
+            <h1 class="text-2xl font-semibold tracking-tight">Crear cuenta</h1>
+          </div>
+          <p class="text-center text-sm text-white/50">
+            Registro para padres y tutores
+          </p>
+          {error && (
+            <p class="rounded-xl bg-red-400/15 p-3 text-sm text-red-200">
+              {errorMessages[error] ?? errorMessages.generic}
+            </p>
+          )}
+          <label class="block text-sm text-white/70">
+            Nombre completo
+            <input type="text" name="full_name" required minlength="3" class={inputClass} />
+          </label>
+          <label class="block text-sm text-white/70">
+            Teléfono
+            <input type="tel" name="phone" class={inputClass} />
+          </label>
+          <label class="block text-sm text-white/70">
+            Sucursal
+            <select name="branch_id" required class={inputClass}>
+              <option value="" class="text-slate-900">
+                Selecciona una sucursal…
+              </option>
+              {(branches ?? []).map((b) => (
+                <option value={b.id} class="text-slate-900">
+                  {b.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label class="block text-sm text-white/70">
+            Correo
+            <input type="email" name="email" required class={inputClass} />
+          </label>
+          <label class="block text-sm text-white/70">
+            Contraseña
+            <input type="password" name="password" required minlength="8" class={inputClass} />
+          </label>
+          <button class="w-full rounded-full bg-cream py-2.5 font-semibold text-slate-900 shadow-lg transition hover:-translate-y-0.5">
+            Crear cuenta
+          </button>
+          <p class="text-center text-sm text-white/50">
+            ¿Ya tienes cuenta?{' '}
+            <a href="/login" class="text-white underline-offset-4 hover:underline">
+              Inicia sesión
+            </a>
+          </p>
+        </form>
+      )
+    }
+  </div>
+</BaseLayout>

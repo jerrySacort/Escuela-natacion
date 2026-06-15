@@ -5,10 +5,23 @@ interface Props {
   title?: string;
 }
 const { title = 'Escuela de Natación' } = Astro.props;
+
+// Tema elegido por el admin (global). Si falla, queda el tema por defecto.
+let theme = 'ocean';
+try {
+  const { data } = await Astro.locals.supabase
+    .from('org_settings')
+    .select('theme')
+    .eq('id', true)
+    .single();
+  if (data?.theme) theme = data.theme;
+} catch {
+  theme = 'ocean';
+}
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang="es" data-theme={theme}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -16,5 +29,146 @@ const { title = 'Escuela de Natación' } = Astro.props;
   </head>
   <body class="min-h-screen bg-slate-50 text-slate-900">
     <slot />
+
+    <script>
+      // ============================================================
+      // Mejoras de animación globales (parallax, glow y contadores).
+      // Son mejoras progresivas: si el script falla, la interfaz
+      // sigue visible y funcional, solo sin estos efectos.
+      // ============================================================
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      // Solo aplicamos parallax con mouse (no en pantallas táctiles).
+      const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+      // --- 1. Auto-detección de tarjetas ---------------------------
+      // Marca como .auto-card los paneles de vidrio que sean tarjetas,
+      // excluyendo píldoras/nav (rounded-full) y el panel contenedor.
+      function tagCards() {
+        const main = document.querySelector('main');
+        if (!main) return [];
+        const candidates = main.querySelectorAll('.glass-soft, .glass');
+        const cards = [];
+        candidates.forEach((el) => {
+          if (el.classList.contains('auto-card')) {
+            cards.push(el);
+            return;
+          }
+          if (
+            el.classList.contains('rounded-full') ||
+            el.classList.contains('panel-enter') ||
+            el.closest('nav') ||
+            el.closest('header')
+          ) {
+            return;
+          }
+          el.classList.add('auto-card');
+          cards.push(el);
+        });
+        return cards;
+      }
+
+      // --- 2. Parallax (inclinación 3D) + glow que sigue al cursor --
+      function bindTilt(card) {
+        if (reduce || !finePointer || card.dataset.tiltBound) return;
+        card.dataset.tiltBound = '1';
+        const MAX = 5; // grados de inclinación
+        card.addEventListener('mousemove', (e) => {
+          const r = card.getBoundingClientRect();
+          const px = (e.clientX - r.left) / r.width;
+          const py = (e.clientY - r.top) / r.height;
+          card.style.setProperty('--mx', px * 100 + '%');
+          card.style.setProperty('--my', py * 100 + '%');
+          card.style.setProperty('--tilt-y', (px - 0.5) * 2 * MAX + 'deg');
+          card.style.setProperty('--tilt-x', -(py - 0.5) * 2 * MAX + 'deg');
+          card.classList.add('tilt');
+        });
+        card.addEventListener('mouseleave', () => {
+          card.classList.remove('tilt');
+          card.style.removeProperty('--tilt-x');
+          card.style.removeProperty('--tilt-y');
+        });
+      }
+
+      // --- 3. Contadores animados ----------------------------------
+      // Anima de 0 al valor final los números grandes (text-3xl/4xl/5xl)
+      // cuyo contenido es puramente numérico (admite $ , . % h m al borde).
+      function animateCount(el) {
+        if (el.dataset.counted) return;
+        const raw = (el.textContent || '').trim();
+        const m = raw.match(/^(\D*?)([\d.,]+)(\D*)$/);
+        if (!m) return;
+        const prefix = m[1];
+        const numStr = m[2];
+        const suffix = m[3];
+        const hasComma = numStr.includes(',');
+        const clean = numStr.replace(/,/g, '');
+        const target = parseFloat(clean);
+        if (!isFinite(target)) return;
+        el.dataset.counted = '1';
+        const decimals = (clean.split('.')[1] || '').length;
+        const dur = 1100;
+        const start = performance.now();
+        const fmt = (v) => {
+          let s = decimals > 0 ? v.toFixed(decimals) : Math.round(v).toString();
+          if (hasComma) {
+            const parts = s.split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            s = parts.join('.');
+          }
+          return prefix + s + suffix;
+        };
+        if (reduce) {
+          el.textContent = fmt(target);
+          return;
+        }
+        const tick = (now) => {
+          const p = Math.min(1, (now - start) / dur);
+          const eased = 1 - Math.pow(1 - p, 3);
+          el.textContent = fmt(target * eased);
+          if (p < 1) requestAnimationFrame(tick);
+          else el.textContent = fmt(target);
+        };
+        requestAnimationFrame(tick);
+      }
+
+      function setupCounters() {
+        const main = document.querySelector('main');
+        if (!main) return;
+        const nums = main.querySelectorAll(
+          '[class*="text-3xl"], [class*="text-4xl"], [class*="text-5xl"]',
+        );
+        if (!('IntersectionObserver' in window)) {
+          nums.forEach(animateCount);
+          return;
+        }
+        const io = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                animateCount(entry.target);
+                io.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.4 },
+        );
+        nums.forEach((n) => io.observe(n));
+      }
+
+      // --- Orquestación --------------------------------------------
+      function enhance() {
+        const cards = tagCards();
+        cards.forEach(bindTilt);
+        setupCounters();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', enhance);
+      } else {
+        enhance();
+      }
+      // Reintento corto para captar islas de React tras hidratar.
+      setTimeout(enhance, 450);
+    </script>
   </body>
 </html>

@@ -10,12 +10,17 @@ const PROTECTED: Record<string, UserRole[]> = {
   '/api/admin': ['superadmin', 'branch_admin'],
 };
 
-const PUBLIC = ['/login', '/api/auth'];
+const PUBLIC = ['/login', '/registro', '/api/auth'];
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const { pathname } = context.url;
 
-  if (PUBLIC.some((p) => pathname.startsWith(p))) return next();
+  // Rutas públicas (login/registro): exponemos supabase para que el layout
+  // pueda leer el tema (org_settings tiene lectura pública), pero sin sesión.
+  if (PUBLIC.some((p) => pathname.startsWith(p))) {
+    context.locals.supabase = createSupabaseServer(context.request, context.cookies);
+    return next();
+  }
 
   const supabase = createSupabaseServer(context.request, context.cookies);
   const session = await getSessionProfile(supabase);
