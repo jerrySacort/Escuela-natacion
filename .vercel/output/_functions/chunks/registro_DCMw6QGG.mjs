@@ -1,7 +1,7 @@
 import { c as createComponent } from './astro-component_auFlcV9k.mjs';
 import 'piccolore';
 import { I as renderTemplate, u as maybeRenderHead, _ as addAttribute } from './sequence_CVaQCOaa.mjs';
-import { r as renderComponent } from './entrypoint_DnxdSQaP.mjs';
+import { r as renderComponent } from './entrypoint_Dl6_iOoR.mjs';
 import { $ as $$BaseLayout } from './BaseLayout_IRvy86g9.mjs';
 import { c as createSupabaseServer } from './supabase_B4M2ZyYM.mjs';
 

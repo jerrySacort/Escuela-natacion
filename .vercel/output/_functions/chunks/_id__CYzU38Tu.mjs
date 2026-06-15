@@ -1,8 +1,8 @@
 import { c as createComponent } from './astro-component_auFlcV9k.mjs';
 import 'piccolore';
 import { I as renderTemplate, u as maybeRenderHead, _ as addAttribute } from './sequence_CVaQCOaa.mjs';
-import { r as renderComponent } from './entrypoint_DnxdSQaP.mjs';
-import { $ as $$DashboardLayout } from './DashboardLayout_Do2wH5FH.mjs';
+import { r as renderComponent } from './entrypoint_Dl6_iOoR.mjs';
+import { $ as $$DashboardLayout } from './DashboardLayout_B5gixhUf.mjs';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 import { useState, useMemo, useEffect } from 'react';
 import { c as confirmDialog, a as alertDialog } from './dialog_CWCWZkCC.mjs';
