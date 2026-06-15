@@ -1,7 +1,7 @@
 import { c as createComponent } from './astro-component_auFlcV9k.mjs';
 import 'piccolore';
 import { I as renderTemplate, _ as addAttribute, F as Fragment, u as maybeRenderHead } from './sequence_CVaQCOaa.mjs';
-import { r as renderComponent } from './entrypoint_C2HBX7Lj.mjs';
+import { r as renderComponent } from './entrypoint_DnxdSQaP.mjs';
 import { $ as $$BaseLayout } from './BaseLayout_IRvy86g9.mjs';
 import { jsxs, jsx } from 'react/jsx-runtime';
 import { useState, useRef, useEffect } from 'react';

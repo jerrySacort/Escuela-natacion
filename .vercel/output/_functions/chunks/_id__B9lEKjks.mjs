@@ -1,7 +1,7 @@
 import { c as createComponent } from './astro-component_auFlcV9k.mjs';
 import 'piccolore';
 import { I as renderTemplate, u as maybeRenderHead } from './sequence_CVaQCOaa.mjs';
-import { r as renderComponent } from './entrypoint_C2HBX7Lj.mjs';
+import { r as renderComponent } from './entrypoint_DnxdSQaP.mjs';
 import { $ as $$BaseLayout } from './BaseLayout_IRvy86g9.mjs';
 import { A as AttendanceView } from './AttendanceView_-Bg-Qi_V.mjs';
 

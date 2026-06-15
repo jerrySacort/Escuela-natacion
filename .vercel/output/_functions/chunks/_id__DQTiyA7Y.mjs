@@ -1,7 +1,7 @@
 import { c as createComponent } from './astro-component_auFlcV9k.mjs';
 import 'piccolore';
 import { I as renderTemplate, u as maybeRenderHead, _ as addAttribute, F as Fragment } from './sequence_CVaQCOaa.mjs';
-import { r as renderComponent } from './entrypoint_C2HBX7Lj.mjs';
+import { r as renderComponent } from './entrypoint_DnxdSQaP.mjs';
 import { $ as $$BaseLayout } from './BaseLayout_IRvy86g9.mjs';
 
 const $$id = createComponent(async ($$result, $$props, $$slots) => {
