@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
+import { confirmDialog, alertDialog } from '@/lib/dialog';
 
 export interface ChargeRow {
   id: string;
@@ -88,20 +89,20 @@ export default function PaymentsView({ charges, canManage }: Props) {
   }, [paying]);
 
   async function onGenerate() {
-    if (!confirm('¿Generar los cargos de mensualidad del mes en curso para todas las inscripciones activas?'))
+    if (!(await confirmDialog('¿Generar los cargos de mensualidad del mes en curso para todas las inscripciones activas?', { confirmText: 'Generar' })))
       return;
     setGenerating(true);
     const res = await fetch('/api/charges/generate', { method: 'POST' });
     const body = await res.json().catch(() => ({}));
     if (res.ok) {
-      alert(
+      await alertDialog(
         `Cargos nuevos: ${body.created} · ya existían: ${body.skipped} · marcados vencidos: ${body.overdue_marked}`,
       );
       window.location.reload();
       return;
     }
     setGenerating(false);
-    alert(body.error ?? 'No se pudieron generar los cargos.');
+    void alertDialog(body.error ?? 'No se pudieron generar los cargos.');
   }
 
   async function onPay(e: FormEvent<HTMLFormElement>) {
@@ -123,7 +124,7 @@ export default function PaymentsView({ charges, canManage }: Props) {
   }
 
   async function onCancel(c: ChargeRow) {
-    if (!confirm(`¿Cancelar el cargo "${c.concept}" de ${c.student_name}?`)) return;
+    if (!(await confirmDialog(`¿Cancelar el cargo "${c.concept}" de ${c.student_name}?`, { tone: 'danger', confirmText: 'Cancelar cargo', cancelText: 'Volver' }))) return;
     const fd = new FormData();
     fd.set('action', 'cancel');
     const res = await fetch(`/api/charges/${c.id}`, { method: 'PATCH', body: fd });
@@ -131,7 +132,7 @@ export default function PaymentsView({ charges, canManage }: Props) {
       window.location.reload();
       return;
     }
-    alert('No se pudo cancelar el cargo.');
+    void alertDialog('No se pudo cancelar el cargo.');
   }
 
   return (
@@ -296,7 +297,7 @@ export default function PaymentsView({ charges, canManage }: Props) {
         >
           <form
             onSubmit={onPay}
-            className="modal-panel my-auto w-full max-w-sm space-y-4 rounded-[2rem] border border-white/15 bg-[#0d2436]/95 p-7 text-white shadow-2xl"
+            className="modal-panel my-auto w-full max-w-sm space-y-4 rounded-[2rem] border border-white/15 p-7 text-white shadow-2xl"
           >
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold tracking-tight">

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { alertDialog } from '@/lib/dialog';
 
 interface RosterStudent {
   student_id: string;
@@ -55,7 +56,7 @@ export default function AttendanceView({ groups, canManage }: Props) {
     const res = await fetch('/api/attendance/toggle', { method: 'POST', body: fd });
     if (!res.ok) {
       setPresence((p) => ({ ...p, [key]: !next })); // revertir
-      alert('No se pudo actualizar la asistencia.');
+      void alertDialog('No se pudo actualizar la asistencia.');
     }
     setPending(null);
   }

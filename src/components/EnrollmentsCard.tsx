@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { confirmDialog, alertDialog } from '@/lib/dialog';
 
 interface Enrolled {
   enrollment_id: string;
@@ -61,7 +62,7 @@ export default function EnrollmentsCard({
   }
 
   async function onRemove(en: Enrolled) {
-    if (!confirm(`¿Dar de baja a ${en.name} de este grupo?`)) return;
+    if (!(await confirmDialog(`¿Dar de baja a ${en.name} de este grupo?`, { tone: 'danger', confirmText: 'Dar de baja' }))) return;
     const res = await fetch(
       `/api/groups/${groupId}/enrollments?enrollment_id=${en.enrollment_id}`,
       { method: 'DELETE' },
@@ -70,7 +71,7 @@ export default function EnrollmentsCard({
       window.location.reload();
       return;
     }
-    alert('No se pudo dar de baja.');
+    void alertDialog('No se pudo dar de baja.');
   }
 
   function Row({ en, badge }: { en: Enrolled; badge?: string }) {

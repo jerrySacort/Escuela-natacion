@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
+import { confirmDialog, alertDialog } from '@/lib/dialog';
 
 interface Option {
   id: string;
@@ -106,7 +107,7 @@ export default function InstructorsView({
 
   async function toggleActive(i: InstructorRow) {
     const action = i.is_active ? 'desactivar' : 'reactivar';
-    if (!confirm(`¿Seguro que quieres ${action} a ${i.name}?`)) return;
+    if (!(await confirmDialog(`¿Seguro que quieres ${action} a ${i.name}?`, { tone: i.is_active ? 'danger' : 'default' }))) return;
     setTogglingId(i.id);
     const fd = new FormData();
     fd.set('is_active', String(!i.is_active));
@@ -119,7 +120,7 @@ export default function InstructorsView({
       return;
     }
     setTogglingId(null);
-    alert('No se pudo cambiar el estatus.');
+    void alertDialog('No se pudo cambiar el estatus.');
   }
 
   return (
@@ -263,7 +264,7 @@ export default function InstructorsView({
         >
           <form
             onSubmit={onSubmit}
-            className="modal-panel my-auto w-full max-w-md space-y-3.5 rounded-[2rem] border border-white/15 bg-[#0d2436]/95 p-7 text-white shadow-2xl"
+            className="modal-panel my-auto w-full max-w-md space-y-3.5 rounded-[2rem] border border-white/15 p-7 text-white shadow-2xl"
           >
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold tracking-tight">

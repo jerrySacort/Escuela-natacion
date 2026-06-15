@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent, type ChangeEvent } from 'react';
 import { createPortal } from 'react-dom';
+import { confirmDialog, alertDialog } from '@/lib/dialog';
 
 interface Org {
   school_name: string;
@@ -21,6 +22,14 @@ interface Pool {
   lanes: number;
   branch_id: string;
 }
+interface Level {
+  id: string;
+  name: string;
+  sort_order: number;
+  min_age: number | null;
+  max_age: number | null;
+  description: string | null;
+}
 interface User {
   full_name: string;
   phone: string | null;
@@ -31,7 +40,10 @@ interface Props {
   org: Org;
   branches: Branch[];
   pools: Pool[];
+  levels: Level[];
   user: User;
+  /** Solo la cuenta raíz puede crear superadmins. */
+  canManageAdmins?: boolean;
 }
 
 type BranchModal = { mode: 'create' } | { mode: 'edit'; branch: Branch } | null;
@@ -39,6 +51,7 @@ type PoolModal =
   | { mode: 'create'; branchId: string }
   | { mode: 'edit'; pool: Pool }
   | null;
+type LevelModal = { mode: 'create' } | { mode: 'edit'; level: Level } | null;
 
 const inputClass =
   'mt-1 w-full rounded-full border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white outline-none placeholder:text-white/30 focus:border-white/40';
@@ -65,9 +78,19 @@ const THEMES = [
   { id: 'neon', name: 'Neón', bg: '#120817', accent: '#f0d9f7', brand: '#d633e8' },
 ];
 
-export default function SettingsView({ org, branches, pools, user }: Props) {
+export default function SettingsView({
+  org,
+  branches,
+  pools,
+  levels,
+  user,
+  canManageAdmins = false,
+}: Props) {
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileMsg, setProfileMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  const [adminSaving, setAdminSaving] = useState(false);
+  const [adminMsg, setAdminMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   const [schoolSaving, setSchoolSaving] = useState(false);
   const [schoolMsg, setSchoolMsg] = useState<{ ok: boolean; text: string } | null>(null);
@@ -75,6 +98,7 @@ export default function SettingsView({ org, branches, pools, user }: Props) {
 
   const [branchModal, setBranchModal] = useState<BranchModal>(null);
   const [poolModal, setPoolModal] = useState<PoolModal>(null);
+  const [levelModal, setLevelModal] = useState<LevelModal>(null);
   const [modalSaving, setModalSaving] = useState(false);
   const [modalError, setModalError] = useState('');
 
@@ -90,6 +114,25 @@ export default function SettingsView({ org, branches, pools, user }: Props) {
     const file = e.target.files?.[0];
     if (logoPreview) URL.revokeObjectURL(logoPreview);
     setLogoPreview(file ? URL.createObjectURL(file) : null);
+  }
+
+  async function createAdmin(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    setAdminSaving(true);
+    setAdminMsg(null);
+    const res = await fetch('/api/users', {
+      method: 'POST',
+      body: new FormData(form),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (res.ok) {
+      setAdminMsg({ ok: true, text: 'Superadmin creado correctamente.' });
+      form.reset();
+    } else {
+      setAdminMsg({ ok: false, text: body.error ?? 'No se pudo crear el usuario.' });
+    }
+    setAdminSaving(false);
   }
 
   async function submitProfile(e: FormEvent<HTMLFormElement>) {
@@ -167,28 +210,63 @@ export default function SettingsView({ org, branches, pools, user }: Props) {
 
   async function toggleBranch(b: Branch) {
     const action = b.is_active ? 'desactivar' : 'reactivar';
-    if (!confirm(`¿Seguro que quieres ${action} la sucursal "${b.name}"?`)) return;
+    if (!(await confirmDialog(`¿Seguro que quieres ${action} la sucursal "${b.name}"?`, { tone: b.is_active ? 'danger' : 'default' }))) return;
     const fd = new FormData();
     fd.set('is_active', String(!b.is_active));
     const res = await patch(`/api/branches/${b.id}`, fd);
     if (res.ok) window.location.reload();
-    else alert('No se pudo actualizar la sucursal.');
+    else void alertDialog('No se pudo actualizar la sucursal.');
   }
 
   async function deletePool(p: Pool) {
-    if (!confirm(`¿Eliminar la alberca "${p.name}"?`)) return;
+    if (!(await confirmDialog(`¿Eliminar la alberca "${p.name}"?`, { tone: 'danger', confirmText: 'Eliminar' }))) return;
     const res = await fetch(`/api/pools/${p.id}`, { method: 'DELETE' });
     if (res.ok) {
       window.location.reload();
       return;
     }
     const body = await res.json().catch(() => ({}));
-    alert(body.error ?? 'No se pudo eliminar la alberca.');
+    void alertDialog(body.error ?? 'No se pudo eliminar la alberca.');
+  }
+
+  async function submitLevel(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!levelModal) return;
+    setModalSaving(true);
+    setModalError('');
+    const fd = new FormData(e.currentTarget);
+    const url =
+      levelModal.mode === 'edit'
+        ? `/api/levels/${levelModal.level.id}`
+        : '/api/levels';
+    const res =
+      levelModal.mode === 'edit'
+        ? await patch(url, fd)
+        : await fetch(url, { method: 'POST', body: fd });
+    if (res.ok) {
+      window.location.reload();
+      return;
+    }
+    const body = await res.json().catch(() => ({}));
+    setModalError(body.error ?? 'No se pudo guardar.');
+    setModalSaving(false);
+  }
+
+  async function deleteLevel(l: Level) {
+    if (!(await confirmDialog(`¿Eliminar el nivel "${l.name}"?`, { tone: 'danger', confirmText: 'Eliminar' }))) return;
+    const res = await fetch(`/api/levels/${l.id}`, { method: 'DELETE' });
+    if (res.ok) {
+      window.location.reload();
+      return;
+    }
+    const body = await res.json().catch(() => ({}));
+    void alertDialog(body.error ?? 'No se pudo eliminar el nivel.');
   }
 
   function closeModal() {
     setBranchModal(null);
     setPoolModal(null);
+    setLevelModal(null);
     setModalError('');
     setModalSaving(false);
   }
@@ -202,7 +280,7 @@ export default function SettingsView({ org, branches, pools, user }: Props) {
     const fd = new FormData();
     fd.set('theme', id);
     const res = await patch('/api/theme', fd);
-    if (!res.ok) alert('No se pudo guardar el tema.');
+    if (!res.ok) void alertDialog('No se pudo guardar el tema.');
   }
 
   function Msg({ msg }: { msg: { ok: boolean; text: string } | null }) {
@@ -529,6 +607,126 @@ export default function SettingsView({ org, branches, pools, user }: Props) {
         </div>
       </section>
 
+      {/* Niveles para los grupos */}
+      <section className={cardClass}>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold tracking-tight">Niveles</h2>
+            <p className="mt-1 text-sm text-white/50">
+              Los niveles que aparecen al crear grupos y en la rúbrica de evaluación.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setModalError('');
+              setLevelModal({ mode: 'create' });
+            }}
+            className="bg-cream rounded-full px-4 py-2 text-sm font-semibold text-slate-900 transition hover:-translate-y-0.5"
+          >
+            + Nivel
+          </button>
+        </div>
+
+        <div className="mt-4 space-y-2">
+          {levels.map((l) => (
+            <div
+              key={l.id}
+              className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/5 p-4"
+            >
+              <div className="min-w-0">
+                <p className="font-medium text-white/90">{l.name}</p>
+                <p className="mt-0.5 text-xs text-white/45">
+                  {l.min_age != null || l.max_age != null
+                    ? `Edad: ${l.min_age ?? '—'}–${l.max_age ?? '—'} años`
+                    : 'Sin rango de edad'}
+                  {l.description ? ` · ${l.description}` : ''}
+                </p>
+              </div>
+              <div className="flex shrink-0 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setModalError('');
+                    setLevelModal({ mode: 'edit', level: l });
+                  }}
+                  className="rounded-full border border-white/15 px-3 py-1.5 text-xs text-white/70 transition hover:bg-white/10 hover:text-white"
+                >
+                  Editar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => deleteLevel(l)}
+                  className="rounded-full border border-white/15 px-3 py-1.5 text-xs text-white/60 transition hover:bg-red-400/20 hover:text-red-200"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          ))}
+          {levels.length === 0 && (
+            <p className="py-2 text-sm text-white/40">No hay niveles todavía.</p>
+          )}
+        </div>
+      </section>
+
+      {/* Usuarios administradores — solo la cuenta raíz */}
+      {canManageAdmins && (
+        <section className={cardClass}>
+          <h2 className="text-lg font-semibold tracking-tight">Usuarios administradores</h2>
+          <p className="mt-1 text-sm text-white/50">
+            Crea cuentas con rol{' '}
+            <span className="font-medium text-white/70">superadmin</span>. Solo tu
+            cuenta (raíz) puede hacerlo.
+          </p>
+          <form onSubmit={createAdmin} className="mt-4 space-y-3.5">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className={labelClass}>
+                Nombre completo
+                <input
+                  type="text"
+                  name="full_name"
+                  required
+                  placeholder="Nombre y apellido"
+                  className={inputClass}
+                />
+              </label>
+              <label className={labelClass}>
+                Correo
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  placeholder="correo@ejemplo.com"
+                  className={inputClass}
+                />
+              </label>
+            </div>
+            <label className={labelClass}>
+              Contraseña temporal
+              <input
+                type="password"
+                name="password"
+                required
+                minLength={8}
+                placeholder="Mínimo 8 caracteres"
+                className={inputClass}
+              />
+            </label>
+            <p className="text-xs text-white/35">
+              La cuenta queda activa al instante con rol superadmin. Comparte la
+              contraseña de forma segura; el usuario podrá cambiarla después.
+            </p>
+            <Msg msg={adminMsg} />
+            <div className="flex justify-end">
+              <button type="submit" disabled={adminSaving} className={saveBtn}>
+                {adminSaving ? 'Creando…' : 'Crear superadmin'}
+              </button>
+            </div>
+          </form>
+        </section>
+      )}
+
       {/* Modal sucursal */}
       {branchModal &&
         typeof document !== 'undefined' &&
@@ -539,7 +737,7 @@ export default function SettingsView({ org, branches, pools, user }: Props) {
           >
             <form
               onSubmit={submitBranch}
-              className="modal-panel my-auto w-full max-w-md space-y-3.5 rounded-[2rem] border border-white/15 bg-[#0d2436]/95 p-7 text-white shadow-2xl"
+              className="modal-panel my-auto w-full max-w-md space-y-3.5 rounded-[2rem] border border-white/15 p-7 text-white shadow-2xl"
             >
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold tracking-tight">
@@ -616,7 +814,7 @@ export default function SettingsView({ org, branches, pools, user }: Props) {
           >
             <form
               onSubmit={submitPool}
-              className="modal-panel my-auto w-full max-w-sm space-y-3.5 rounded-[2rem] border border-white/15 bg-[#0d2436]/95 p-7 text-white shadow-2xl"
+              className="modal-panel my-auto w-full max-w-sm space-y-3.5 rounded-[2rem] border border-white/15 p-7 text-white shadow-2xl"
             >
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold tracking-tight">
@@ -669,6 +867,102 @@ export default function SettingsView({ org, branches, pools, user }: Props) {
                 </button>
                 <button type="submit" disabled={modalSaving} className={saveBtn}>
                   {modalSaving ? 'Guardando…' : poolModal.mode === 'edit' ? 'Guardar' : 'Crear'}
+                </button>
+              </div>
+            </form>
+          </div>,
+          document.body,
+        )}
+
+      {/* Modal nivel */}
+      {levelModal &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            className="modal-overlay fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/60 p-4 backdrop-blur-sm"
+            onClick={(e) => e.target === e.currentTarget && closeModal()}
+          >
+            <form
+              onSubmit={submitLevel}
+              className="modal-panel my-auto w-full max-w-sm space-y-3.5 rounded-[2rem] border border-white/15 p-7 text-white shadow-2xl"
+            >
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold tracking-tight">
+                  {levelModal.mode === 'edit' ? 'Editar nivel' : 'Nuevo nivel'}
+                </h2>
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-white/50 transition hover:bg-white/10 hover:text-white"
+                  aria-label="Cerrar"
+                >
+                  ✕
+                </button>
+              </div>
+              {modalError && (
+                <p className="rounded-xl bg-red-400/15 p-3 text-sm text-red-200">{modalError}</p>
+              )}
+              <label className={labelClass}>
+                Nombre del nivel
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  placeholder="Principiantes"
+                  defaultValue={levelModal.mode === 'edit' ? levelModal.level.name : ''}
+                  className={inputClass}
+                />
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <label className={labelClass}>
+                  Edad mínima
+                  <input
+                    type="number"
+                    name="min_age"
+                    min="0"
+                    placeholder="—"
+                    defaultValue={
+                      levelModal.mode === 'edit' ? levelModal.level.min_age ?? '' : ''
+                    }
+                    className={inputClass}
+                  />
+                </label>
+                <label className={labelClass}>
+                  Edad máxima
+                  <input
+                    type="number"
+                    name="max_age"
+                    min="0"
+                    placeholder="—"
+                    defaultValue={
+                      levelModal.mode === 'edit' ? levelModal.level.max_age ?? '' : ''
+                    }
+                    className={inputClass}
+                  />
+                </label>
+              </div>
+              <label className={labelClass}>
+                Descripción (opcional)
+                <input
+                  type="text"
+                  name="description"
+                  placeholder="Breve descripción del nivel"
+                  defaultValue={
+                    levelModal.mode === 'edit' ? levelModal.level.description ?? '' : ''
+                  }
+                  className={inputClass}
+                />
+              </label>
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="rounded-full px-5 py-2.5 text-sm text-white/60 transition hover:bg-white/10 hover:text-white"
+                >
+                  Cancelar
+                </button>
+                <button type="submit" disabled={modalSaving} className={saveBtn}>
+                  {modalSaving ? 'Guardando…' : levelModal.mode === 'edit' ? 'Guardar' : 'Crear'}
                 </button>
               </div>
             </form>

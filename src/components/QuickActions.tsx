@@ -171,7 +171,7 @@ export default function QuickActions({
       >
         <form
           onSubmit={onSubmit}
-          className={`modal-panel my-auto w-full ${maxW} space-y-3.5 rounded-[2rem] border border-white/15 bg-[#0d2436]/95 p-7 text-white shadow-2xl`}
+          className={`modal-panel my-auto w-full ${maxW} space-y-3.5 rounded-[2rem] border border-white/15 p-7 text-white shadow-2xl`}
         >
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
@@ -215,7 +215,7 @@ export default function QuickActions({
       <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-white/50">
         Acciones rápidas
       </h2>
-      <div className="flex flex-wrap gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:flex sm:flex-wrap">
         {canManage && (
           <button type="button" onClick={() => { setError(''); setActive('alumno'); }} className={pillClass}>
             <IconBox>🏊</IconBox>

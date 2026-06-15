@@ -15,7 +15,7 @@
     radial-gradient(50rem 35rem at 5% 95%, rgba(20, 160, 180, 0.25), transparent 60%),
     radial-gradient(40rem 30rem at 50% 50%, rgba(8, 74, 110, 0.45), transparent 70%),
     linear-gradient(135deg, #081420 0%, #0d2436 50%, #081420 100%);
-  --modal-bg: #0d2436;
+  --modal-bg: #163b54;
 }
 
 html[data-theme='sunset'] {
@@ -23,7 +23,7 @@ html[data-theme='sunset'] {
   --color-brand-500: #e8915a;
   --color-brand-600: #c46a3a;
   --color-brand-700: #8f4a2a;
-  --modal-bg: #2a1530;
+  --modal-bg: #3a1c42;
   --app-bg:
     radial-gradient(60rem 40rem at 80% 0%, rgba(244, 130, 90, 0.38), transparent 60%),
     radial-gradient(50rem 35rem at 5% 95%, rgba(170, 80, 200, 0.3), transparent 60%),
@@ -35,7 +35,7 @@ html[data-theme='forest'] {
   --color-brand-500: #1fae7a;
   --color-brand-600: #0f8f63;
   --color-brand-700: #0a6e4e;
-  --modal-bg: #0d2418;
+  --modal-bg: #123a26;
   --app-bg:
     radial-gradient(60rem 40rem at 80% 0%, rgba(34, 170, 120, 0.35), transparent 60%),
     radial-gradient(50rem 35rem at 5% 95%, rgba(40, 150, 110, 0.28), transparent 60%),
@@ -47,7 +47,7 @@ html[data-theme='cherry'] {
   --color-brand-500: #d65a78;
   --color-brand-600: #b03a58;
   --color-brand-700: #8a2440;
-  --modal-bg: #2a0c16;
+  --modal-bg: #3d1320;
   --app-bg:
     radial-gradient(60rem 40rem at 80% 0%, rgba(214, 90, 120, 0.35), transparent 60%),
     radial-gradient(50rem 35rem at 5% 95%, rgba(150, 50, 90, 0.3), transparent 60%),
@@ -59,7 +59,7 @@ html[data-theme='midnight'] {
   --color-brand-500: #5a6cf0;
   --color-brand-600: #3a4ad0;
   --color-brand-700: #2430a8;
-  --modal-bg: #0b1024;
+  --modal-bg: #151d40;
   --app-bg:
     radial-gradient(60rem 40rem at 80% 0%, rgba(90, 108, 240, 0.32), transparent 60%),
     radial-gradient(50rem 35rem at 5% 95%, rgba(60, 80, 200, 0.25), transparent 60%),
@@ -71,7 +71,7 @@ html[data-theme='grape'] {
   --color-brand-500: #9a6cf0;
   --color-brand-600: #7a4cd0;
   --color-brand-700: #5a32a8;
-  --modal-bg: #1c1230;
+  --modal-bg: #281a45;
   --app-bg:
     radial-gradient(60rem 40rem at 80% 0%, rgba(150, 108, 240, 0.34), transparent 60%),
     radial-gradient(50rem 35rem at 5% 95%, rgba(110, 70, 200, 0.28), transparent 60%),
@@ -83,7 +83,7 @@ html[data-theme='steel'] {
   --color-brand-500: #6b8fc0;
   --color-brand-600: #4f6f9e;
   --color-brand-700: #38527a;
-  --modal-bg: #141c26;
+  --modal-bg: #1e2b3b;
   --app-bg:
     radial-gradient(60rem 40rem at 80% 0%, rgba(110, 140, 180, 0.3), transparent 60%),
     radial-gradient(50rem 35rem at 5% 95%, rgba(80, 110, 150, 0.24), transparent 60%),
@@ -95,7 +95,7 @@ html[data-theme='coral'] {
   --color-brand-500: #f0805a;
   --color-brand-600: #cc5e3a;
   --color-brand-700: #9e4228;
-  --modal-bg: #221310;
+  --modal-bg: #341c17;
   --app-bg:
     radial-gradient(60rem 40rem at 80% 0%, rgba(240, 128, 90, 0.34), transparent 60%),
     radial-gradient(50rem 35rem at 5% 95%, rgba(40, 150, 150, 0.26), transparent 60%),
@@ -107,7 +107,7 @@ html[data-theme='gold'] {
   --color-brand-500: #d9a93a;
   --color-brand-600: #b3861f;
   --color-brand-700: #876214;
-  --modal-bg: #221b0c;
+  --modal-bg: #322611;
   --app-bg:
     radial-gradient(60rem 40rem at 80% 0%, rgba(217, 169, 58, 0.32), transparent 60%),
     radial-gradient(50rem 35rem at 5% 95%, rgba(150, 110, 40, 0.26), transparent 60%),
@@ -119,7 +119,7 @@ html[data-theme='garnet'] {
   --color-brand-500: #e0455a;
   --color-brand-600: #c02d44;
   --color-brand-700: #8f1f33;
-  --modal-bg: #2d0f16;
+  --modal-bg: #3f1420;
   --app-bg:
     radial-gradient(60rem 40rem at 80% 0%, rgba(224, 69, 90, 0.4), transparent 60%),
     radial-gradient(50rem 35rem at 5% 95%, rgba(255, 150, 170, 0.18), transparent 60%),
@@ -131,7 +131,7 @@ html[data-theme='neon'] {
   --color-brand-500: #d633e8;
   --color-brand-600: #a81ab8;
   --color-brand-700: #6f1080;
-  --modal-bg: #120817;
+  --modal-bg: #2a1340;
   --app-bg:
     radial-gradient(55rem 38rem at 8% 0%, rgba(214, 51, 232, 0.45), transparent 58%),
     radial-gradient(45rem 32rem at 95% 100%, rgba(150, 30, 200, 0.28), transparent 60%),
@@ -175,6 +175,11 @@ html[data-theme='neon'] {
 .modal-panel {
   background-color: var(--modal-bg);
   animation: modal-in 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Fondo sólido con el color del tema (paneles, popovers y tooltips). */
+.bg-modal {
+  background-color: var(--modal-bg);
 }
 
 /* Donut de progreso (conic-gradient + mask) */

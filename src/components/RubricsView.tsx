@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { confirmDialog, alertDialog } from '@/lib/dialog';
 
 interface Skill {
   id: string;
@@ -38,7 +39,7 @@ export default function RubricsView({ levels, skills, canEdit }: Props) {
       return;
     }
     const body = await res.json().catch(() => ({}));
-    alert(body.error ?? 'No se pudo crear.');
+    void alertDialog(body.error ?? 'No se pudo crear.');
     setSaving(false);
   }
 
@@ -55,19 +56,19 @@ export default function RubricsView({ levels, skills, canEdit }: Props) {
       return;
     }
     const body = await res.json().catch(() => ({}));
-    alert(body.error ?? 'No se pudo renombrar.');
+    void alertDialog(body.error ?? 'No se pudo renombrar.');
     setSaving(false);
   }
 
   async function onDelete(skill: Skill) {
-    if (!confirm(`¿Eliminar "${skill.name}" de la rúbrica?`)) return;
+    if (!(await confirmDialog(`¿Eliminar "${skill.name}" de la rúbrica?`, { tone: 'danger', confirmText: 'Eliminar' }))) return;
     const res = await fetch(`/api/skills/${skill.id}`, { method: 'DELETE' });
     if (res.ok) {
       window.location.reload();
       return;
     }
     const body = await res.json().catch(() => ({}));
-    alert(body.error ?? 'No se pudo eliminar.');
+    void alertDialog(body.error ?? 'No se pudo eliminar.');
   }
 
   return (

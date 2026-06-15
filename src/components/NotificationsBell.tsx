@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { alertDialog } from '@/lib/dialog';
 
 interface Notification {
   id: string;
@@ -54,7 +55,7 @@ export default function NotificationsBell({ items }: Props) {
       return;
     }
     setMarking(false);
-    alert('No se pudieron marcar como leídos.');
+    void alertDialog('No se pudieron marcar como leídos.');
   }
 
   return (

@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { confirmDialog, alertDialog } from '@/lib/dialog';
 
 interface Linked {
   guardian_id: string;
@@ -64,7 +65,7 @@ export default function GuardiansCard({ studentId, linked, parents, canManage }:
   }
 
   async function onRemove(g: Linked) {
-    if (!confirm(`¿Desvincular a ${g.name}?`)) return;
+    if (!(await confirmDialog(`¿Desvincular a ${g.name}?`, { tone: 'danger', confirmText: 'Desvincular' }))) return;
     const res = await fetch(
       `/api/students/${studentId}/guardians?guardian_id=${g.guardian_id}`,
       { method: 'DELETE' },
@@ -73,7 +74,7 @@ export default function GuardiansCard({ studentId, linked, parents, canManage }:
       window.location.reload();
       return;
     }
-    alert('No se pudo desvincular.');
+    void alertDialog('No se pudo desvincular.');
   }
 
   const relationshipSelect = (

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
+import { confirmDialog, alertDialog } from '@/lib/dialog';
 
 interface Option {
   id: string;
@@ -171,7 +172,7 @@ export default function GroupsView({
 
   async function toggleActive(g: GroupRow) {
     const action = g.is_active ? 'desactivar' : 'reactivar';
-    if (!confirm(`¿Seguro que quieres ${action} el grupo "${g.name}"?`)) return;
+    if (!(await confirmDialog(`¿Seguro que quieres ${action} el grupo "${g.name}"?`, { tone: g.is_active ? 'danger' : 'default' }))) return;
     setTogglingId(g.id);
     const fd = new FormData();
     fd.set('is_active', String(!g.is_active));
@@ -181,7 +182,7 @@ export default function GroupsView({
       return;
     }
     setTogglingId(null);
-    alert('No se pudo cambiar el estatus.');
+    void alertDialog('No se pudo cambiar el estatus.');
   }
 
   return (
@@ -208,11 +209,11 @@ export default function GroupsView({
           />
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[60rem] text-sm">
             <thead>
               <tr className="text-left text-white/50">
                 <th className="px-5 py-3 font-medium">Grupo</th>
-                <th className="px-5 py-3 font-medium">Horario</th>
+                <th className="min-w-[13rem] px-5 py-3 font-medium">Horario</th>
                 <th className="px-5 py-3 font-medium">Instructor</th>
                 <th className="px-5 py-3 font-medium">Ocupación</th>
                 <th className="px-5 py-3 font-medium">Mensualidad</th>
@@ -328,7 +329,7 @@ export default function GroupsView({
         >
           <form
             onSubmit={onSubmit}
-            className="modal-panel my-auto w-full max-w-lg space-y-3.5 rounded-[2rem] border border-white/15 bg-[#0d2436]/95 p-7 text-white shadow-2xl"
+            className="modal-panel my-auto w-full max-w-lg space-y-3.5 rounded-[2rem] border border-white/15 p-7 text-white shadow-2xl"
           >
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold tracking-tight">

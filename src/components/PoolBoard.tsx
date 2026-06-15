@@ -322,7 +322,7 @@ export default function PoolBoard({
 
         {/* Tooltip */}
         <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 hidden w-52 -translate-x-1/2 group-hover:block">
-          <div className="rounded-2xl border border-white/15 bg-[#0d2436] p-3 text-left shadow-2xl">
+          <div className="bg-modal rounded-2xl border border-white/15 p-3 text-left shadow-2xl">
             <p className="text-sm font-semibold text-white">{student.name}</p>
             <div className="mt-2 space-y-1 text-xs text-white/70">
               <p>🏊 Clase: <span className="text-white/90">{session.name}</span></p>

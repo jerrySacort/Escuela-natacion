@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent, type ChangeEvent } from 'react';
 import { createPortal } from 'react-dom';
+import { confirmDialog, alertDialog } from '@/lib/dialog';
 
 interface Option {
   id: string;
@@ -129,7 +130,7 @@ export default function StudentsView({
 
   async function toggleActive(s: StudentRow) {
     const action = s.is_active ? 'desactivar' : 'reactivar';
-    if (!confirm(`¿Seguro que quieres ${action} a ${s.first_name} ${s.last_name}?`))
+    if (!(await confirmDialog(`¿Seguro que quieres ${action} a ${s.first_name} ${s.last_name}?`, { tone: s.is_active ? 'danger' : 'default' })))
       return;
     setTogglingId(s.id);
     const fd = new FormData();
@@ -140,7 +141,7 @@ export default function StudentsView({
       return;
     }
     setTogglingId(null);
-    alert('No se pudo cambiar el estatus.');
+    void alertDialog('No se pudo cambiar el estatus.');
   }
 
   const currentPhoto = photoPreview ?? editing?.photo_url ?? null;
@@ -270,7 +271,7 @@ export default function StudentsView({
         >
           <form
             onSubmit={onSubmit}
-            className="modal-panel my-auto w-full max-w-md space-y-3.5 rounded-[2rem] border border-white/15 bg-[#0d2436]/95 p-7 text-white shadow-2xl"
+            className="modal-panel my-auto w-full max-w-md space-y-3.5 rounded-[2rem] border border-white/15 p-7 text-white shadow-2xl"
           >
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold tracking-tight">

@@ -94,7 +94,7 @@ export default function AddStudentModal({
         >
           <form
             onSubmit={onSubmit}
-            className="modal-panel my-auto w-full max-w-md space-y-3.5 rounded-[2rem] border border-white/15 bg-[#0d2436]/95 p-7 text-white shadow-2xl"
+            className="modal-panel my-auto w-full max-w-md space-y-3.5 rounded-[2rem] border border-white/15 p-7 text-white shadow-2xl"
           >
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold tracking-tight">

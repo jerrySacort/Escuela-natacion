@@ -7,6 +7,17 @@ export type UserRole =
   | 'instructor'
   | 'parent';
 
+/**
+ * Cuenta "raíz": única autorizada a crear usuarios superadmin desde
+ * Configuración. Es una salvaguarda extra por encima del rol superadmin.
+ */
+export const ROOT_ADMIN_EMAIL = 'jerry.dc37@gmail.com';
+
+/** ¿Es la cuenta raíz? Comparación insensible a mayúsculas/espacios. */
+export function isRootAdmin(email: string | null | undefined): boolean {
+  return !!email && email.trim().toLowerCase() === ROOT_ADMIN_EMAIL;
+}
+
 export interface Profile {
   id: string;
   branch_id: string | null;
