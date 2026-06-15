@@ -1,0 +1,109 @@
+import { c as createComponent } from './astro-component_auFlcV9k.mjs';
+import 'piccolore';
+import { I as renderTemplate, u as maybeRenderHead, _ as addAttribute } from './sequence_CVaQCOaa.mjs';
+import { r as renderComponent } from './entrypoint_C2HBX7Lj.mjs';
+import { $ as $$BaseLayout } from './BaseLayout_IRvy86g9.mjs';
+import { A as AttendanceView } from './AttendanceView_-Bg-Qi_V.mjs';
+
+const $$Index = createComponent(async ($$result, $$props, $$slots) => {
+  const Astro2 = $$result.createAstro($$props, $$slots);
+  Astro2.self = $$Index;
+  const { supabase, session } = Astro2.locals;
+  const one = (v) => Array.isArray(v) ? v[0] ?? null : v;
+  const { data: orgRow } = await supabase.from("org_settings").select("school_name, logo_url").eq("id", true).single();
+  const org = orgRow ?? { school_name: "Escuela de Natación", logo_url: null };
+  const WEEKDAYS_SHORT = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+  const todayDow = (/* @__PURE__ */ new Date()).getDay();
+  const todayStr = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+  const { data: instructor } = await supabase.from("instructors").select("id").eq("profile_id", session.user.id).single();
+  const instructorId = instructor?.id ?? null;
+  const { data: groupsData } = instructorId ? await supabase.from("groups").select("id, name, capacity, levels(name), group_schedules(weekday, start_time, end_time)").eq("instructor_id", instructorId).eq("is_active", true).order("name") : { data: [] };
+  const groupsRaw = groupsData ?? [];
+  const groupIds = groupsRaw.map((g) => g.id);
+  const [enrollQ, attQ] = await Promise.all([
+    groupIds.length > 0 ? supabase.from("enrollments").select("group_id, student_id, students(first_name, last_name, photo_url)").in("group_id", groupIds).eq("status", "active") : Promise.resolve({ data: [] }),
+    groupIds.length > 0 ? supabase.from("attendance").select("group_id, student_id").in("group_id", groupIds).eq("class_date", todayStr) : Promise.resolve({ data: [] })
+  ]);
+  const enrollments = enrollQ.data ?? [];
+  const attendance = attQ.data ?? [];
+  const attendanceSet = new Set(attendance.map((a) => `${a.group_id}:${a.student_id}`));
+  function rosterFor(gid) {
+    return enrollments.filter((e) => e.group_id === gid).map((e) => {
+      const s = one(e.students);
+      return {
+        student_id: e.student_id,
+        name: s ? `${s.last_name}, ${s.first_name}` : "—",
+        photo_url: s?.photo_url ?? null,
+        present: attendanceSet.has(`${gid}:${e.student_id}`)
+      };
+    }).sort((a, b) => a.name.localeCompare(b.name));
+  }
+  const groups = groupsRaw.map((g) => {
+    const scheds = (g.group_schedules ?? []).slice().sort((a, b) => a.weekday - b.weekday || a.start_time.localeCompare(b.start_time));
+    const weekly = scheds.map((s) => `${WEEKDAYS_SHORT[s.weekday]} ${s.start_time.slice(0, 5)}`).join(" · ");
+    const todays = scheds.filter((s) => s.weekday === todayDow);
+    const times = todays.map((s) => `${s.start_time.slice(0, 5)} – ${s.end_time.slice(0, 5)}`).join(" / ");
+    const roster = rosterFor(g.id);
+    return {
+      id: g.id,
+      name: g.name,
+      capacity: g.capacity,
+      level_name: one(g.levels)?.name ?? "—",
+      weekly,
+      times,
+      hasToday: todays.length > 0,
+      roster,
+      enrolled: roster.length
+    };
+  });
+  const todayGroups = groups.filter((g) => g.hasToday).map((g) => ({
+    id: g.id,
+    name: g.name,
+    level_name: g.level_name,
+    times: g.times,
+    roster: g.roster
+  }));
+  const gruposAsignados = groups.length;
+  const clasesHoy = todayGroups.length;
+  const alumnosTotal = new Set(enrollments.map((e) => e.student_id)).size;
+  const asistenciasHoy = attendance.length;
+  const firstName = session?.profile.full_name.split(" ")[0] ?? "";
+  const initial = firstName.charAt(0).toUpperCase() || "🙂";
+  const today = (/* @__PURE__ */ new Date()).toLocaleDateString("es-MX", {
+    weekday: "long",
+    day: "numeric",
+    month: "long"
+  });
+  const stats = [
+    { label: "Grupos", value: gruposAsignados, icon: "📋" },
+    { label: "Clases hoy", value: clasesHoy, icon: "🗓️" },
+    { label: "Alumnos", value: alumnosTotal, icon: "🏊" },
+    { label: "Asist. hoy", value: asistenciasHoy, icon: "✅" }
+  ];
+  return renderTemplate`${renderComponent($$result, "BaseLayout", $$BaseLayout, { "title": "Panel del instructor" }, { "default": async ($$result2) => renderTemplate` ${maybeRenderHead()}<div class="dash-bg fixed inset-0 -z-10"></div> <div class="mx-auto max-w-5xl p-4 text-white sm:p-6 lg:p-8"> <header class="glass relative z-50 flex items-center justify-between rounded-full px-4 py-2.5 sm:px-6"> <div class="flex items-center gap-2.5"> ${org.logo_url ? renderTemplate`<img${addAttribute(org.logo_url, "src")}${addAttribute(org.school_name, "alt")} class="h-14 w-auto max-w-[280px] object-contain">` : renderTemplate`<span class="bg-cream flex h-11 w-11 items-center justify-center rounded-full text-lg">
+🏊
+</span>`} ${!org.logo_url && renderTemplate`<span class="text-sm font-semibold tracking-tight sm:text-base"> ${org.school_name} </span>`} </div> <div class="flex items-center gap-3"> <span class="bg-cream/90 grid h-9 w-9 place-items-center rounded-full text-sm font-bold text-slate-900"> ${initial} </span> <form method="post" action="/api/auth/signout"> <button class="rounded-full border border-white/15 px-4 py-1.5 text-sm text-white/70 transition hover:bg-white/10 hover:text-white">
+Salir
+</button> </form> </div> </header> <div class="mt-7 sm:mt-9"> <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Hola, ${firstName} 👋</h1> <p class="mt-1 text-sm capitalize text-white/45">${today}</p> </div> <section class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4"> ${stats.map((s) => renderTemplate`<div class="glass rounded-3xl p-4 sm:p-5"> <div class="flex items-start justify-between"> <span class="text-3xl font-bold sm:text-4xl">${s.value}</span> <span class="grid h-9 w-9 place-items-center rounded-2xl bg-white/5 text-lg"> ${s.icon} </span> </div> <p class="mt-1 text-xs text-white/45 sm:text-sm">${s.label}</p> </div>`)} </section> <section class="mt-8"> <h2 class="mb-3 px-1 text-sm font-medium uppercase tracking-wide text-white/50">
+Pase de lista · hoy
+</h2> ${renderComponent($$result2, "AttendanceView", AttendanceView, { "client:load": true, "groups": todayGroups, "canManage": true, "client:component-hydration": "load", "client:component-path": "@/components/AttendanceView", "client:component-export": "default" })} </section> <section class="mt-8"> <h2 class="mb-3 px-1 text-sm font-medium uppercase tracking-wide text-white/50">
+Mis grupos
+</h2> <div class="grid gap-3 sm:grid-cols-2"> ${groups.map((g) => renderTemplate`<a${addAttribute(`/instructor/grupo/${g.id}`, "href")} class="glass rounded-3xl p-5 transition hover:-translate-y-0.5"> <div class="flex items-start justify-between gap-3"> <div class="min-w-0"> <p class="truncate font-semibold text-white/90">${g.name}</p> <p class="mt-0.5 text-sm text-white/50">${g.level_name}</p> </div> ${g.hasToday && renderTemplate`<span class="shrink-0 rounded-full bg-emerald-400/15 px-2.5 py-0.5 text-xs text-emerald-200">
+hoy
+</span>`} </div> <p class="mt-3 text-xs text-white/45">${g.weekly || "Sin horario"}</p> <div class="mt-3 flex items-center gap-2 text-xs text-white/55"> <span class="rounded-full bg-white/5 px-2.5 py-1"> ${g.enrolled}/${g.capacity} alumnos
+</span> </div> </a>`)} ${groups.length === 0 && renderTemplate`<div class="glass rounded-3xl p-8 text-center sm:col-span-2"> <p class="text-3xl">📋</p> <p class="mt-3 text-white/60">No tienes grupos asignados.</p> </div>`} </div> </section> </div> ` })}`;
+}, "D:/Proyectos/IA/Escuela natacion/src/pages/instructor/index.astro", void 0);
+
+const $$file = "D:/Proyectos/IA/Escuela natacion/src/pages/instructor/index.astro";
+const $$url = "/instructor";
+
+const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: $$Index,
+  file: $$file,
+  url: $$url
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const page = () => _page;
+
+export { page };

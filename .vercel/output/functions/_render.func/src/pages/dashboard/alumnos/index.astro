@@ -1,0 +1,50 @@
+---
+import DashboardLayout from '@/layouts/DashboardLayout.astro';
+import StudentsView from '@/components/StudentsView';
+
+const { supabase, session } = Astro.locals;
+const role = session!.profile.role;
+const isSuperadmin = role === 'superadmin';
+const canManage = ['superadmin', 'branch_admin', 'coordinator'].includes(role);
+
+const [studentsQ, levelsQ, branchesQ, guardiansQ] = await Promise.all([
+  supabase
+    .from('students')
+    .select(
+      'id, first_name, last_name, birth_date, is_active, photo_url, level_id, branch_id, medical_notes, sex, levels(name)',
+    )
+    .order('last_name'),
+  supabase.from('levels').select('id, name').order('sort_order'),
+  isSuperadmin
+    ? supabase.from('branches').select('id, name').eq('is_active', true).order('name')
+    : Promise.resolve({ data: [] as { id: string; name: string }[] }),
+  supabase
+    .from('profiles')
+    .select('id, full_name')
+    .eq('role', 'parent')
+    .order('full_name'),
+]);
+
+// Supabase tipa la relación FK como arreglo sin tipos generados; normalizamos
+const rows = (studentsQ.data ?? []).map((s) => ({
+  ...s,
+  levels: Array.isArray(s.levels) ? (s.levels[0] ?? null) : s.levels,
+}));
+
+const guardians = (guardiansQ.data ?? []).map((g) => ({
+  id: g.id,
+  name: g.full_name,
+}));
+---
+
+<DashboardLayout title="Alumnos">
+  <StudentsView
+    client:load
+    students={rows}
+    branches={branchesQ.data ?? []}
+    levels={levelsQ.data ?? []}
+    guardians={guardians}
+    showBranchSelect={isSuperadmin}
+    canManage={canManage}
+  />
+</DashboardLayout>

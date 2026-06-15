@@ -1,0 +1,54 @@
+---
+// Configuración: solo superadmin (datos de usuario + escuela + sucursales/albercas)
+import DashboardLayout from '@/layouts/DashboardLayout.astro';
+import SettingsView from '@/components/SettingsView';
+import { isRootAdmin } from '@/lib/auth';
+
+const { supabase, session } = Astro.locals;
+
+if (session!.profile.role !== 'superadmin') return Astro.redirect('/dashboard');
+
+// Solo la cuenta raíz puede crear superadmins desde Configuración.
+const canManageAdmins = isRootAdmin(session!.user.email);
+
+const [orgQ, branchesQ, poolsQ, levelsQ] = await Promise.all([
+  supabase
+    .from('org_settings')
+    .select('school_name, phone, email, logo_url, theme')
+    .eq('id', true)
+    .single(),
+  supabase.from('branches').select('id, name, address, phone, is_active').order('name'),
+  supabase.from('pools').select('id, name, lanes, branch_id').order('name'),
+  supabase
+    .from('levels')
+    .select('id, name, sort_order, min_age, max_age, description')
+    .order('sort_order'),
+]);
+
+const org = orgQ.data ?? {
+  school_name: 'Escuela de Natación',
+  phone: null,
+  email: null,
+  logo_url: null,
+  theme: 'ocean',
+};
+
+const user = {
+  full_name: session!.profile.full_name,
+  phone: session!.profile.phone,
+  email: session!.user.email ?? '',
+  role: session!.profile.role,
+};
+---
+
+<DashboardLayout title="Configuración">
+  <SettingsView
+    client:load
+    org={org}
+    branches={branchesQ.data ?? []}
+    pools={poolsQ.data ?? []}
+    levels={levelsQ.data ?? []}
+    user={user}
+    canManageAdmins={canManageAdmins}
+  />
+</DashboardLayout>
