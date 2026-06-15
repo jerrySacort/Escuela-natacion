@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Dione Acuática</title>
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        color: #fff;
+        background:
+          radial-gradient(60rem 40rem at 80% 0%, rgba(14, 123, 184, 0.4), transparent 60%),
+          radial-gradient(40rem 30rem at 50% 50%, rgba(8, 74, 110, 0.45), transparent 70%),
+          linear-gradient(135deg, #081420 0%, #0d2436 50%, #081420 100%);
+        display: grid;
+        place-items: center;
+        text-align: center;
+      }
+      .box { padding: 2rem; }
+      .logo { font-size: 3rem; }
+      h1 { font-size: 1.25rem; font-weight: 600; margin: 0.75rem 0 0.25rem; }
+      p { color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; margin: 0; }
+      .spinner {
+        margin: 1.5rem auto 0;
+        width: 32px; height: 32px;
+        border: 3px solid rgba(255, 255, 255, 0.2);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.9s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <div class="logo">🏊</div>
+      <h1>Dione Acuática</h1>
+      <p>Cargando… revisa tu conexión a internet.</p>
+      <div class="spinner"></div>
+    </div>
+  </body>
+</html>

@@ -6,20 +6,27 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check",
+    "android:add": "cap add android",
+    "android:sync": "cap sync android",
+    "android:open": "cap open android"
   },
   "dependencies": {
-    "@astrojs/node": "^9.0.0",
-    "@astrojs/react": "^4.0.0",
+    "@astrojs/react": "^5.0.7",
+    "@astrojs/vercel": "^10.0.8",
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/core": "^6.2.0",
     "@supabase/ssr": "^0.6.0",
     "@supabase/supabase-js": "^2.108.1",
-    "astro": "^5.0.0",
+    "astro": "^6.4.6",
     "pdf-lib": "^1.17.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.0",
+    "@astrojs/check": "^0.9.9",
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^6.2.0",
     "@tailwindcss/vite": "^4.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
