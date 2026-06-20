@@ -17,6 +17,7 @@ const error = Astro.url.searchParams.get('error');
   <div class="dash-bg fixed inset-0 -z-10"></div>
   <div class="flex min-h-screen items-center justify-center p-4 text-white">
     <form
+      id="login-form"
       method="post"
       action="/api/auth/signin"
       class="glass w-full max-w-sm space-y-4 rounded-[2rem] p-8 shadow-2xl"
@@ -61,9 +62,15 @@ const error = Astro.url.searchParams.get('error');
         />
       </label>
       <button
-        class="w-full rounded-full bg-cream py-2.5 font-semibold text-slate-900 shadow-lg transition hover:-translate-y-0.5"
+        type="submit"
+        data-submit
+        class="flex w-full items-center justify-center gap-2 rounded-full bg-cream py-2.5 font-semibold text-slate-900 shadow-lg transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
       >
-        Entrar
+        <span
+          data-spinner
+          class="hidden h-4 w-4 animate-spin rounded-full border-2 border-slate-900/30 border-t-slate-900"
+        ></span>
+        <span data-label>Entrar</span>
       </button>
       <p class="text-center text-sm text-white/50">
         ¿No tienes cuenta?
@@ -71,4 +78,16 @@ const error = Astro.url.searchParams.get('error');
       </p>
     </form>
   </div>
+
+  <script>
+    const form = document.getElementById('login-form');
+    form?.addEventListener('submit', () => {
+      const btn = form.querySelector('[data-submit]') as HTMLButtonElement | null;
+      if (!btn) return;
+      btn.disabled = true;
+      btn.querySelector('[data-spinner]')?.classList.remove('hidden');
+      const label = btn.querySelector('[data-label]');
+      if (label) label.textContent = 'Entrando…';
+    });
+  </script>
 </BaseLayout>

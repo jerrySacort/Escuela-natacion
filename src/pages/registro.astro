@@ -49,6 +49,7 @@ const inputClass =
         </div>
       ) : (
         <form
+          id="signup-form"
           method="post"
           action="/api/auth/signup"
           class="glass w-full max-w-sm space-y-4 rounded-[2rem] p-8 shadow-2xl"
@@ -104,8 +105,16 @@ const inputClass =
             Contraseña
             <input type="password" name="password" required minlength="8" class={inputClass} />
           </label>
-          <button class="w-full rounded-full bg-cream py-2.5 font-semibold text-slate-900 shadow-lg transition hover:-translate-y-0.5">
-            Crear cuenta
+          <button
+            type="submit"
+            data-submit
+            class="flex w-full items-center justify-center gap-2 rounded-full bg-cream py-2.5 font-semibold text-slate-900 shadow-lg transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
+          >
+            <span
+              data-spinner
+              class="hidden h-4 w-4 animate-spin rounded-full border-2 border-slate-900/30 border-t-slate-900"
+            ></span>
+            <span data-label>Crear cuenta</span>
           </button>
           <p class="text-center text-sm text-white/50">
             ¿Ya tienes cuenta?{' '}
@@ -117,4 +126,16 @@ const inputClass =
       )
     }
   </div>
+
+  <script>
+    const form = document.getElementById('signup-form');
+    form?.addEventListener('submit', () => {
+      const btn = form.querySelector('[data-submit]') as HTMLButtonElement | null;
+      if (!btn) return;
+      btn.disabled = true;
+      btn.querySelector('[data-spinner]')?.classList.remove('hidden');
+      const label = btn.querySelector('[data-label]');
+      if (label) label.textContent = 'Creando cuenta…';
+    });
+  </script>
 </BaseLayout>

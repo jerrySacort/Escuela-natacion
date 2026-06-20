@@ -1,0 +1,129 @@
+---
+// Loader de navegación global. Se incluye una vez en BaseLayout.
+// Muestra una barra de progreso (inmediata) y un skeleton del panel
+// (con un pequeño retraso) mientras el servidor prepara la página nueva.
+// Es mejora progresiva: empieza oculto y, si el JS falla, nunca estorba.
+---
+
+<div class="nav-loader" id="nav-loader" aria-hidden="true">
+  <div class="nav-loader__bar"></div>
+  <div class="nav-loader__veil">
+    <div class="min-h-screen p-3 sm:p-6 lg:p-8">
+      <div class="glass mx-auto max-w-7xl rounded-[2rem] p-4 shadow-2xl sm:rounded-[2.5rem] sm:p-7">
+        <!-- Cabecera: logo · píldoras de nav · usuario -->
+        <div class="flex flex-wrap items-center gap-4">
+          <div class="skl h-12 w-32 rounded-2xl"></div>
+          <div class="glass-soft order-3 flex w-full gap-2 rounded-full p-1.5 sm:order-none sm:w-auto sm:flex-1 sm:justify-center">
+            {Array.from({ length: 5 }).map(() => (
+              <div class="skl h-8 w-20 rounded-full"></div>
+            ))}
+          </div>
+          <div class="glass-soft ml-auto flex items-center gap-3 rounded-full py-1.5 pl-1.5 pr-4 sm:ml-0">
+            <div class="skl h-9 w-9 rounded-full"></div>
+            <div class="skl hidden h-4 w-24 md:block"></div>
+          </div>
+        </div>
+
+        <!-- Hero: métricas grandes -->
+        <div class="mt-8 flex flex-wrap items-center gap-8 lg:gap-12">
+          <div class="skl h-28 w-28 rounded-full"></div>
+          {Array.from({ length: 3 }).map(() => (
+            <div class="space-y-2">
+              <div class="skl h-3 w-24"></div>
+              <div class="skl h-10 w-32"></div>
+            </div>
+          ))}
+        </div>
+
+        <!-- Rejilla de tarjetas -->
+        <div class="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-3">
+          <div class="glass-soft rounded-3xl p-6 lg:col-span-2">
+            <div class="skl h-4 w-40"></div>
+            <div class="skl mt-4 h-3 w-full"></div>
+            <div class="skl mt-2 h-3 w-5/6"></div>
+            <div class="mt-6 grid grid-cols-2 gap-4">
+              <div class="skl h-24 rounded-2xl"></div>
+              <div class="skl h-24 rounded-2xl"></div>
+            </div>
+          </div>
+          <div class="flex flex-col gap-5">
+            <div class="skl h-36 rounded-3xl"></div>
+            <div class="skl h-36 rounded-3xl"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (() => {
+    const loader = document.getElementById('nav-loader');
+    if (!loader) return;
+
+    let skeletonTimer = null;
+
+    function start() {
+      // Reinicia la animación de la barra forzando reflow.
+      loader.classList.remove('is-active', 'show-skeleton');
+      void loader.offsetWidth;
+      loader.classList.add('is-active');
+      // El skeleton solo aparece si la carga tarda; evita parpadeo.
+      skeletonTimer = window.setTimeout(
+        () => loader.classList.add('show-skeleton'),
+        180,
+      );
+    }
+
+    function stop() {
+      window.clearTimeout(skeletonTimer);
+      loader.classList.remove('is-active', 'show-skeleton');
+    }
+
+    // Intercepta clics en enlaces internos para dar feedback inmediato.
+    document.addEventListener('click', (e) => {
+      if (e.defaultPrevented || e.button !== 0) return;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const link = e.target instanceof Element ? e.target.closest('a') : null;
+      if (!link) return;
+
+      const href = link.getAttribute('href');
+      if (!href || href.startsWith('#')) return;
+      if (link.target && link.target !== '_self') return;
+      if (link.hasAttribute('download')) return;
+      if (link.dataset.noLoader !== undefined) return;
+
+      let url;
+      try {
+        url = new URL(href, location.href);
+      } catch {
+        return;
+      }
+      // Solo navegaciones internas a otra página.
+      if (url.origin !== location.origin) return;
+      if (url.pathname === location.pathname && url.search === location.search) return;
+      // Las rutas de API suelen descargar archivos (recibos, reportes).
+      if (url.pathname.startsWith('/api/')) return;
+
+      start();
+    });
+
+    // Formularios que navegan (no los de React, que usan fetch).
+    document.addEventListener('submit', (e) => {
+      const form = e.target;
+      if (!(form instanceof HTMLFormElement)) return;
+      if (e.defaultPrevented) return;
+      if (form.dataset.noLoader !== undefined) return;
+      const action = form.getAttribute('action') || '';
+      // signout y signin/signup redirigen a una página; mostramos el loader.
+      if (action.startsWith('/api/auth/')) start();
+    });
+
+    // Oculta el loader si la página se restaura desde la caché (atrás/adelante).
+    window.addEventListener('pageshow', (e) => {
+      if (e.persisted) stop();
+    });
+    // Si la navegación se cancela (p. ej. el usuario vuelve), limpia.
+    window.addEventListener('pagehide', stop);
+  })();
+</script>

@@ -462,6 +462,82 @@ html[data-theme='neon'] {
 .anim-fade-up { animation: fade-up 0.55s var(--ease-out) both; }
 .anim-fade-in { animation: fade-in 0.5s ease-out both; }
 
+/* ============================================================
+   Loader de navegación: barra de progreso + skeleton al cambiar
+   de página (el salto al servidor). Pensado para los paneles
+   (dashboard / portal / instructor). Mejora progresiva: si el JS
+   falla, nunca queda visible (empieza oculto).
+   ============================================================ */
+
+/* Bloque "esqueleto" con brillo que recorre (shimmer) */
+@keyframes skl-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+.skl {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 25%,
+    rgba(255, 255, 255, 0.14) 50%,
+    rgba(255, 255, 255, 0.05) 75%
+  );
+  background-size: 200% 100%;
+  animation: skl-shimmer 1.5s ease-in-out infinite;
+}
+
+/* Barra de progreso superior */
+@keyframes nav-progress-grow {
+  0% { transform: scaleX(0); }
+  40% { transform: scaleX(0.55); }
+  75% { transform: scaleX(0.82); }
+  100% { transform: scaleX(0.94); }
+}
+.nav-loader__bar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 3px;
+  z-index: 100;
+  transform-origin: left;
+  transform: scaleX(0);
+  background: linear-gradient(
+    90deg,
+    var(--color-brand-500),
+    var(--color-cream)
+  );
+  box-shadow: 0 0 12px color-mix(in srgb, var(--color-brand-500) 70%, transparent);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* Capa con el skeleton del panel */
+.nav-loader__veil {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  background: var(--app-bg);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+/* Estado activo (lo activa el script) */
+.nav-loader.is-active .nav-loader__bar {
+  opacity: 1;
+  animation: nav-progress-grow 9s var(--ease-out) forwards;
+}
+.nav-loader.is-active.show-skeleton .nav-loader__veil {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skl { animation: none; }
+  .nav-loader.is-active .nav-loader__bar { animation: none; transform: scaleX(0.9); }
+}
+
 /* Transiciones suaves por defecto en controles interactivos */
 a,
 button,
