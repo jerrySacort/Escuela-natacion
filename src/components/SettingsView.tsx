@@ -56,7 +56,7 @@ type LevelModal = { mode: 'create' } | { mode: 'edit'; level: Level } | null;
 const inputClass =
   'mt-1 w-full rounded-full border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white outline-none placeholder:text-white/30 focus:border-white/40';
 const labelClass = 'block text-sm text-white/70';
-const cardClass = 'glass-soft rounded-3xl p-6';
+const cardClass = 'reveal-section glass-soft rounded-3xl p-6';
 const saveBtn =
   'bg-cream rounded-full px-6 py-2.5 text-sm font-semibold text-slate-900 shadow-lg transition hover:-translate-y-0.5 disabled:opacity-50';
 

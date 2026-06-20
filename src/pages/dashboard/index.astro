@@ -128,7 +128,11 @@ const stats = [
 <DashboardLayout title="Panel general">
   <!-- Hero: donut de cobranza + métricas grandes -->
   <section class="flex flex-wrap items-center gap-8 lg:gap-12">
-    <div class="relative h-28 w-28 shrink-0" title={`Cobranza del mes: ${pctCobranza}%`}>
+    <div
+      class="relative h-28 w-28 shrink-0"
+      title={`Cobranza del mes: ${pctCobranza}%`}
+      data-aos="zoom-in"
+    >
       <div
         class="donut absolute inset-0"
         style={`background: conic-gradient(var(--color-cream) ${pctCobranza}%, rgba(255,255,255,.14) 0)`}
@@ -141,8 +145,8 @@ const stats = [
     </div>
 
     {
-      stats.map((s) => (
-        <div>
+      stats.map((s, i) => (
+        <div data-aos="fade-up" data-aos-delay={100 + i * 90}>
           <p class="text-sm text-white/50">{s.label}</p>
           <p class="mt-1 text-4xl font-bold tracking-tight sm:text-5xl">
             {s.value}
@@ -189,12 +193,19 @@ const stats = [
 
   <!-- Chips de sucursales -->
   <section class="mt-8 flex flex-wrap items-center gap-2">
-    <span class="glass-soft rounded-full bg-cream px-4 py-1.5 text-sm font-medium text-slate-900">
+    <span
+      class="glass-soft rounded-full bg-cream px-4 py-1.5 text-sm font-medium text-slate-900"
+      data-aos="fade-up"
+    >
       Todas
     </span>
     {
-      (branchesQ.data ?? []).map((b) => (
-        <span class="glass-soft rounded-full px-4 py-1.5 text-sm text-white/70">
+      (branchesQ.data ?? []).map((b, i) => (
+        <span
+          class="glass-soft rounded-full px-4 py-1.5 text-sm text-white/70"
+          data-aos="fade-up"
+          data-aos-delay={(i + 1) * 60}
+        >
           {b.name}
         </span>
       ))
@@ -203,7 +214,7 @@ const stats = [
 
   <!-- Tarjetas -->
   <section class="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-3">
-    <div class="glass-soft rounded-3xl p-6 lg:col-span-2">
+    <div class="glass-soft rounded-3xl p-6 lg:col-span-2" data-aos="fade-up">
       <h2 class="font-medium text-white/80">Actividad reciente</h2>
       <p class="mt-3 text-sm text-white/50">
         Aquí aparecerán las últimas inscripciones, pagos y asistencias.
@@ -221,7 +232,7 @@ const stats = [
       </div>
     </div>
 
-    <div class="flex flex-col gap-5">
+    <div class="flex flex-col gap-5" data-aos="fade-left" data-aos-delay="100">
       <a
         href="/dashboard/alumnos"
         class="rounded-3xl bg-cream p-6 text-slate-900 shadow-lg transition hover:-translate-y-0.5"

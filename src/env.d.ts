@@ -1,5 +1,8 @@
 /// <reference types="astro/client" />
 
+// AOS (animate on scroll) no incluye tipos propios.
+declare module 'aos';
+
 declare namespace App {
   interface Locals {
     supabase: import('@supabase/supabase-js').SupabaseClient;

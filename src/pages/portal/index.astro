@@ -232,8 +232,8 @@ const stats = [
     <!-- Stats -->
     <section class="mt-6 grid grid-cols-3 gap-3 sm:gap-4">
       {
-        stats.map((s) => (
-          <div class="glass rounded-3xl p-4 sm:p-5">
+        stats.map((s, i) => (
+          <div class="glass rounded-3xl p-4 sm:p-5" data-aos="fade-up" data-aos-delay={i * 80}>
             <div class="flex items-start justify-between">
               <span class="text-3xl font-bold sm:text-5xl">{s.value}</span>
               <span class="grid h-9 w-9 place-items-center rounded-2xl bg-white/5 text-lg">
@@ -248,7 +248,7 @@ const stats = [
 
     <div class="mt-4 grid gap-4 lg:grid-cols-3">
       <!-- Expediente inline -->
-      <div class="lg:col-span-2">
+      <div class="lg:col-span-2" data-aos="fade-up">
         {
           kids.length === 0 ? (
             <section class="glass rounded-3xl p-8 text-center">
@@ -500,7 +500,7 @@ const stats = [
       </div>
 
       <!-- Aside: próxima clase + pagos + avisos -->
-      <div class="space-y-4">
+      <div class="space-y-4" data-aos="fade-left" data-aos-delay="100">
         <section class="glass rounded-3xl p-5">
           <p class="text-xs uppercase tracking-wide text-white/40">Próxima clase</p>
           {
@@ -541,17 +541,25 @@ const stats = [
     </div>
   </div>
 
-  <script is:inline>
-    document.querySelectorAll('[data-tab]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const id = btn.getAttribute('data-tab');
-        document
-          .querySelectorAll('[data-tab]')
-          .forEach((b) => b.setAttribute('aria-selected', b === btn ? 'true' : 'false'));
-        document
-          .querySelectorAll('[data-panel]')
-          .forEach((p) => p.classList.toggle('hidden', p.getAttribute('data-panel') !== id));
+  <script>
+    // Pestañas de hijos. Se enlazan en cada `astro:page-load` para que
+    // sigan funcionando tras las View Transitions (el contenido se
+    // reemplaza y los botones son elementos nuevos cada vez).
+    function bindPortalTabs() {
+      const tabs = document.querySelectorAll('[data-tab]');
+      if (!tabs.length) return;
+      tabs.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-tab');
+          document
+            .querySelectorAll('[data-tab]')
+            .forEach((b) => b.setAttribute('aria-selected', b === btn ? 'true' : 'false'));
+          document
+            .querySelectorAll('[data-panel]')
+            .forEach((p) => p.classList.toggle('hidden', p.getAttribute('data-panel') !== id));
+        });
       });
-    });
+    }
+    document.addEventListener('astro:page-load', bindPortalTabs);
   </script>
 </BaseLayout>

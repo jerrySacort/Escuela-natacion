@@ -144,6 +144,17 @@ html[data-theme='neon'] {
   background: var(--app-bg);
 }
 
+/* View Transitions: desactivamos el crossfade por defecto del root.
+   Ese crossfade congela la página en una "foto" mientras hace la mezcla,
+   lo que impide ver las animaciones de entrada de cada caja (AOS, auto-card,
+   dash-enter). Con el swap instantáneo, el contenido nuevo aparece y sus
+   animaciones de entrada se reproducen en vivo. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
 /* Panel y tarjetas de vidrio */
 .glass {
   background: rgba(255, 255, 255, 0.08);
@@ -462,6 +473,28 @@ html[data-theme='neon'] {
 .anim-fade-up { animation: fade-up 0.55s var(--ease-out) both; }
 .anim-fade-in { animation: fade-in 0.5s ease-out both; }
 
+/* Revelado de filas de tablas (lo aplica el script global con un
+   retardo escalonado). Relleno `both` para que la fila nunca quede oculta. */
+@keyframes row-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Entrada escalonada de tarjetas de sección renderizadas por React
+   (p. ej. Configuración). La clase va en el className del JSX para que
+   sobreviva a la hidratación/re-render de React (el script global no puede
+   garantizarlo). Base visible + relleno `both`: nunca queda oculta. */
+.reveal-section {
+  animation: card-reveal 0.55s var(--ease-spring) both;
+}
+.reveal-section:nth-of-type(1) { animation-delay: 0.04s; }
+.reveal-section:nth-of-type(2) { animation-delay: 0.1s; }
+.reveal-section:nth-of-type(3) { animation-delay: 0.16s; }
+.reveal-section:nth-of-type(4) { animation-delay: 0.22s; }
+.reveal-section:nth-of-type(5) { animation-delay: 0.28s; }
+.reveal-section:nth-of-type(6) { animation-delay: 0.34s; }
+.reveal-section:nth-of-type(n + 7) { animation-delay: 0.4s; }
+
 /* ============================================================
    Loader de navegación: barra de progreso + skeleton al cambiar
    de página (el salto al servidor). Pensado para los paneles
@@ -538,6 +571,15 @@ html[data-theme='neon'] {
   .nav-loader.is-active .nav-loader__bar { animation: none; transform: scaleX(0.9); }
 }
 
+/* Respaldo: si no hay JavaScript, AOS no inicializa y ocultaría el
+   contenido. Forzamos su visibilidad para no dejar nada en blanco. */
+@media (scripting: none) {
+  [data-aos] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
 /* Transiciones suaves por defecto en controles interactivos */
 a,
 button,
@@ -588,9 +630,13 @@ button:active,
   .panel-enter,
   .dash-enter > *,
   .auto-card,
+  .reveal-section,
   .anim-fade-up,
   .anim-fade-in {
     animation: none;
+  }
+  tbody > tr {
+    animation: none !important;
   }
   *,
   *::before,
