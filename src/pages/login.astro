@@ -80,14 +80,20 @@ const error = Astro.url.searchParams.get('error');
   </div>
 
   <script>
-    const form = document.getElementById('login-form');
-    form?.addEventListener('submit', () => {
-      const btn = form.querySelector('[data-submit]') as HTMLButtonElement | null;
-      if (!btn) return;
-      btn.disabled = true;
-      btn.querySelector('[data-spinner]')?.classList.remove('hidden');
-      const label = btn.querySelector('[data-label]');
-      if (label) label.textContent = 'Entrando…';
-    });
+    // Se re-enlaza en cada astro:page-load para sobrevivir a las
+    // View Transitions (el formulario es un elemento nuevo cada vez).
+    function bindLoginSpinner() {
+      const form = document.getElementById('login-form');
+      if (!form) return;
+      form.addEventListener('submit', () => {
+        const btn = form.querySelector('[data-submit]') as HTMLButtonElement | null;
+        if (!btn) return;
+        btn.disabled = true;
+        btn.querySelector('[data-spinner]')?.classList.remove('hidden');
+        const label = btn.querySelector('[data-label]');
+        if (label) label.textContent = 'Entrando…';
+      });
+    }
+    document.addEventListener('astro:page-load', bindLoginSpinner);
   </script>
 </BaseLayout>

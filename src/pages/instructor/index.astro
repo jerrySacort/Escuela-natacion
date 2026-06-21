@@ -185,8 +185,8 @@ const stats = [
 
     <section class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
       {
-        stats.map((s) => (
-          <div class="glass rounded-3xl p-4 sm:p-5">
+        stats.map((s, i) => (
+          <div class="glass rounded-3xl p-4 sm:p-5" data-aos="fade-up" data-aos-delay={i * 70}>
             <div class="flex items-start justify-between">
               <span class="text-3xl font-bold sm:text-4xl">{s.value}</span>
               <span class="grid h-9 w-9 place-items-center rounded-2xl bg-white/5 text-lg">
@@ -199,22 +199,24 @@ const stats = [
       }
     </section>
 
-    <section class="mt-8">
+    <section class="mt-8" data-aos="fade-up">
       <h2 class="mb-3 px-1 text-sm font-medium uppercase tracking-wide text-white/50">
         Pase de lista · hoy
       </h2>
       <AttendanceView client:load groups={todayGroups} canManage={true} />
     </section>
 
-    <section class="mt-8">
+    <section class="mt-8" data-aos="fade-up">
       <h2 class="mb-3 px-1 text-sm font-medium uppercase tracking-wide text-white/50">
         Mis grupos
       </h2>
       <div class="grid gap-3 sm:grid-cols-2">
         {
-          groups.map((g) => (
+          groups.map((g, i) => (
             <a
               href={`/instructor/grupo/${g.id}`}
+              data-aos="fade-up"
+              data-aos-delay={(i % 4) * 70}
               class="glass rounded-3xl p-5 transition hover:-translate-y-0.5"
             >
               <div class="flex items-start justify-between gap-3">

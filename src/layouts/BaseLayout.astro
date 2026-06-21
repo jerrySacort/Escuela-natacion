@@ -1,5 +1,7 @@
 ---
 import '@/styles/global.css';
+import 'aos/dist/aos.css';
+import { ClientRouter } from 'astro:transitions';
 import NavLoader from '@/components/NavLoader.astro';
 
 interface Props {
@@ -28,6 +30,7 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <title>{title}</title>
+    <ClientRouter />
   </head>
   <body class="min-h-screen bg-slate-50 text-slate-900">
     <NavLoader />
@@ -35,22 +38,27 @@ try {
 
     <script>
       // ============================================================
-      // Mejoras de animación globales (parallax, glow y contadores).
-      // Son mejoras progresivas: si el script falla, la interfaz
-      // sigue visible y funcional, solo sin estos efectos.
+      // Mejoras de animación globales (parallax, glow, contadores),
+      // AOS (animación al desplazar) y el loader de navegación.
+      // Compatible con View Transitions: la lógica se ejecuta en cada
+      // `astro:page-load`. Son mejoras progresivas: si algo falla, la
+      // interfaz sigue visible y funcional.
       // ============================================================
+      import AOS from 'aos';
+
       const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       // Solo aplicamos parallax con mouse (no en pantallas táctiles).
       const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
       // --- 1. Auto-detección de tarjetas ---------------------------
       // Marca como .auto-card los paneles de vidrio que sean tarjetas,
-      // excluyendo píldoras/nav (rounded-full) y el panel contenedor.
-      function tagCards() {
+      // excluyendo píldoras/nav (rounded-full), el panel contenedor y
+      // los elementos que ya gestiona AOS (data-aos).
+      function tagCards(): HTMLElement[] {
         const main = document.querySelector('main');
         if (!main) return [];
-        const candidates = main.querySelectorAll('.glass-soft, .glass');
-        const cards = [];
+        const candidates = main.querySelectorAll<HTMLElement>('.glass-soft, .glass');
+        const cards: HTMLElement[] = [];
         candidates.forEach((el) => {
           if (el.classList.contains('auto-card')) {
             cards.push(el);
@@ -59,6 +67,9 @@ try {
           if (
             el.classList.contains('rounded-full') ||
             el.classList.contains('panel-enter') ||
+            el.classList.contains('reveal-section') ||
+            el.hasAttribute('data-aos') ||
+            el.closest('[data-aos]') ||
             el.closest('nav') ||
             el.closest('header')
           ) {
@@ -71,11 +82,11 @@ try {
       }
 
       // --- 2. Parallax (inclinación 3D) + glow que sigue al cursor --
-      function bindTilt(card) {
+      function bindTilt(card: HTMLElement) {
         if (reduce || !finePointer || card.dataset.tiltBound) return;
         card.dataset.tiltBound = '1';
         const MAX = 5; // grados de inclinación
-        card.addEventListener('mousemove', (e) => {
+        card.addEventListener('mousemove', (e: MouseEvent) => {
           const r = card.getBoundingClientRect();
           const px = (e.clientX - r.left) / r.width;
           const py = (e.clientY - r.top) / r.height;
@@ -95,7 +106,7 @@ try {
       // --- 3. Contadores animados ----------------------------------
       // Anima de 0 al valor final los números grandes (text-3xl/4xl/5xl)
       // cuyo contenido es puramente numérico (admite $ , . % h m al borde).
-      function animateCount(el) {
+      function animateCount(el: HTMLElement) {
         if (el.dataset.counted) return;
         const raw = (el.textContent || '').trim();
         const m = raw.match(/^(\D*?)([\d.,]+)(\D*)$/);
@@ -111,7 +122,7 @@ try {
         const decimals = (clean.split('.')[1] || '').length;
         const dur = 1100;
         const start = performance.now();
-        const fmt = (v) => {
+        const fmt = (v: number) => {
           let s = decimals > 0 ? v.toFixed(decimals) : Math.round(v).toString();
           if (hasComma) {
             const parts = s.split('.');
@@ -124,7 +135,7 @@ try {
           el.textContent = fmt(target);
           return;
         }
-        const tick = (now) => {
+        const tick = (now: number) => {
           const p = Math.min(1, (now - start) / dur);
           const eased = 1 - Math.pow(1 - p, 3);
           el.textContent = fmt(target * eased);
@@ -137,7 +148,7 @@ try {
       function setupCounters() {
         const main = document.querySelector('main');
         if (!main) return;
-        const nums = main.querySelectorAll(
+        const nums = main.querySelectorAll<HTMLElement>(
           '[class*="text-3xl"], [class*="text-4xl"], [class*="text-5xl"]',
         );
         if (!('IntersectionObserver' in window)) {
@@ -148,7 +159,7 @@ try {
           (entries) => {
             entries.forEach((entry) => {
               if (entry.isIntersecting) {
-                animateCount(entry.target);
+                animateCount(entry.target as HTMLElement);
                 io.unobserve(entry.target);
               }
             });
@@ -158,20 +169,120 @@ try {
         nums.forEach((n) => io.observe(n));
       }
 
+      // --- AOS: animación al desplazar -----------------------------
+      // Si AOS fallara, revelamos el contenido para no dejarlo oculto.
+      function revealAosFallback() {
+        document.querySelectorAll<HTMLElement>('[data-aos]').forEach((el) => {
+          el.style.opacity = '1';
+          el.style.transform = 'none';
+        });
+      }
+      function initAOS() {
+        try {
+          AOS.init({
+            duration: 600,
+            easing: 'ease-out-cubic',
+            once: true,
+            offset: 32,
+            disable: reduce,
+            // Lo desactivamos: con View Transitions su observador detecta el
+            // swap del DOM y marca la animación antes de que el navegador
+            // pinte el estado oculto, provocando que la transición "salte".
+            // Controlamos el momento manualmente desde run() (doble rAF).
+            disableMutationObserver: true,
+          });
+        } catch {
+          revealAosFallback();
+        }
+      }
+
+      // --- Loader de navegación (elemento persistido #nav-loader) ---
+      let skeletonTimer: number | undefined;
+      let loaderSafetyTimer: number | undefined;
+      function loaderStart() {
+        const l = document.getElementById('nav-loader');
+        if (!l) return;
+        l.classList.remove('is-active', 'show-skeleton');
+        void l.offsetWidth; // reinicia la animación de la barra
+        l.classList.add('is-active');
+        // El skeleton solo aparece si la navegación tarda; evita parpadeo.
+        skeletonTimer = window.setTimeout(() => l.classList.add('show-skeleton'), 180);
+        // Red de seguridad: si la navegación no termina (p. ej. el enlace
+        // dispara una descarga y no hay astro:page-load), oculta el loader.
+        window.clearTimeout(loaderSafetyTimer);
+        loaderSafetyTimer = window.setTimeout(loaderStop, 8000);
+      }
+      function loaderStop() {
+        const l = document.getElementById('nav-loader');
+        window.clearTimeout(skeletonTimer);
+        window.clearTimeout(loaderSafetyTimer);
+        if (l) l.classList.remove('is-active', 'show-skeleton');
+      }
+
       // --- Orquestación --------------------------------------------
+      // Revelado escalonado de las filas de tablas dentro de <main>.
+      // Da "vida" a las secciones de lista (alumnos, pagos…) igual que el
+      // dashboard. Es CSS puro con relleno `both`, así que nunca deja una
+      // fila oculta. Solo se aplica una vez por fila.
+      function revealRows() {
+        if (reduce) return;
+        const main = document.querySelector('main');
+        if (!main) return;
+        main.querySelectorAll('tbody').forEach((tb) => {
+          tb.querySelectorAll<HTMLTableRowElement>(':scope > tr').forEach((tr, i) => {
+            if (tr.dataset.rowRevealed) return;
+            tr.dataset.rowRevealed = '1';
+            tr.style.animation = 'row-in 0.45s var(--ease-out) both';
+            tr.style.animationDelay = Math.min(i * 35, 420) + 'ms';
+          });
+        });
+      }
+
       function enhance() {
         const cards = tagCards();
         cards.forEach(bindTilt);
         setupCounters();
+        revealRows();
       }
 
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', enhance);
-      } else {
-        enhance();
+      // Red de seguridad: revela cualquier [data-aos] que, por la razón que
+      // sea, no haya quedado animado (p. ej. islas de React muy tardías),
+      // para no dejar nunca contenido invisible.
+      function revealStuckAos() {
+        document
+          .querySelectorAll<HTMLElement>('main [data-aos]:not(.aos-animate)')
+          .forEach((el) => {
+            el.style.opacity = '1';
+            el.style.transform = 'none';
+          });
       }
-      // Reintento corto para captar islas de React tras hidratar.
-      setTimeout(enhance, 450);
+
+      // Se ejecuta en la carga inicial y tras cada View Transition.
+      function run() {
+        loaderStop();
+        enhance();
+        // Esperamos a que el DOM recién intercambiado pinte su estado
+        // inicial (las cajas ocultas con opacity:0) ANTES de que AOS las
+        // marque como animadas. Sin esto, en las navegaciones la
+        // transición "salta" y no se ve. Doble rAF = un frame pintado.
+        requestAnimationFrame(() => requestAnimationFrame(initAOS));
+        // Reintento para captar islas de React que hidratan tarde:
+        // re-detecta tarjetas/filas y re-registra AOS sobre el DOM nuevo.
+        setTimeout(() => {
+          enhance();
+          initAOS();
+        }, 500);
+        // Por si algo quedó sin registrar, garantiza visibilidad.
+        setTimeout(revealStuckAos, 2000);
+      }
+
+      // Muestra el loader en cuanto empieza una navegación.
+      document.addEventListener('astro:before-preparation', loaderStart);
+      // Tras intercambiar el contenido, reaplica mejoras y oculta el loader.
+      document.addEventListener('astro:page-load', run);
+
+      // Primer arranque (idempotente con el astro:page-load inicial).
+      run();
     </script>
   </body>
 </html>

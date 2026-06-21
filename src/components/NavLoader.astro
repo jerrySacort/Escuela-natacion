@@ -1,11 +1,13 @@
 ---
-// Loader de navegación global. Se incluye una vez en BaseLayout.
-// Muestra una barra de progreso (inmediata) y un skeleton del panel
-// (con un pequeño retraso) mientras el servidor prepara la página nueva.
+// Loader de navegación global. Se incluye una vez en BaseLayout y persiste
+// entre transiciones (transition:persist). Muestra una barra de progreso
+// (inmediata) y un skeleton del panel (con un pequeño retraso) mientras el
+// servidor prepara la página nueva. La lógica que lo activa/desactiva vive
+// en el script de BaseLayout, enganchada al ciclo de las View Transitions.
 // Es mejora progresiva: empieza oculto y, si el JS falla, nunca estorba.
 ---
 
-<div class="nav-loader" id="nav-loader" aria-hidden="true">
+<div class="nav-loader" id="nav-loader" transition:persist aria-hidden="true">
   <div class="nav-loader__bar"></div>
   <div class="nav-loader__veil">
     <div class="min-h-screen p-3 sm:p-6 lg:p-8">
@@ -55,75 +57,3 @@
     </div>
   </div>
 </div>
-
-<script is:inline>
-  (() => {
-    const loader = document.getElementById('nav-loader');
-    if (!loader) return;
-
-    let skeletonTimer = null;
-
-    function start() {
-      // Reinicia la animación de la barra forzando reflow.
-      loader.classList.remove('is-active', 'show-skeleton');
-      void loader.offsetWidth;
-      loader.classList.add('is-active');
-      // El skeleton solo aparece si la carga tarda; evita parpadeo.
-      skeletonTimer = window.setTimeout(
-        () => loader.classList.add('show-skeleton'),
-        180,
-      );
-    }
-
-    function stop() {
-      window.clearTimeout(skeletonTimer);
-      loader.classList.remove('is-active', 'show-skeleton');
-    }
-
-    // Intercepta clics en enlaces internos para dar feedback inmediato.
-    document.addEventListener('click', (e) => {
-      if (e.defaultPrevented || e.button !== 0) return;
-      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-      const link = e.target instanceof Element ? e.target.closest('a') : null;
-      if (!link) return;
-
-      const href = link.getAttribute('href');
-      if (!href || href.startsWith('#')) return;
-      if (link.target && link.target !== '_self') return;
-      if (link.hasAttribute('download')) return;
-      if (link.dataset.noLoader !== undefined) return;
-
-      let url;
-      try {
-        url = new URL(href, location.href);
-      } catch {
-        return;
-      }
-      // Solo navegaciones internas a otra página.
-      if (url.origin !== location.origin) return;
-      if (url.pathname === location.pathname && url.search === location.search) return;
-      // Las rutas de API suelen descargar archivos (recibos, reportes).
-      if (url.pathname.startsWith('/api/')) return;
-
-      start();
-    });
-
-    // Formularios que navegan (no los de React, que usan fetch).
-    document.addEventListener('submit', (e) => {
-      const form = e.target;
-      if (!(form instanceof HTMLFormElement)) return;
-      if (e.defaultPrevented) return;
-      if (form.dataset.noLoader !== undefined) return;
-      const action = form.getAttribute('action') || '';
-      // signout y signin/signup redirigen a una página; mostramos el loader.
-      if (action.startsWith('/api/auth/')) start();
-    });
-
-    // Oculta el loader si la página se restaura desde la caché (atrás/adelante).
-    window.addEventListener('pageshow', (e) => {
-      if (e.persisted) stop();
-    });
-    // Si la navegación se cancela (p. ej. el usuario vuelve), limpia.
-    window.addEventListener('pagehide', stop);
-  })();
-</script>
