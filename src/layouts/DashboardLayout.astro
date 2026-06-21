@@ -15,22 +15,82 @@ const { data: orgRow } = await Astro.locals.supabase
   .single();
 const org = orgRow ?? { school_name: 'Escuela de Natación', logo_url: null };
 
+// Íconos (interior SVG, estilo lucide). Se inyectan con set:html dentro de un <svg>.
+const icons: Record<string, string> = {
+  book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/>',
+  wallet: '<path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>',
+  home: '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+  users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  layers: '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+  cap: '<path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1 2 3 6 3s6-2 6-3v-5"/>',
+  card: '<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>',
+  check: '<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="m9 14 2 2 4-4"/>',
+  list: '<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><line x1="13" y1="6" x2="21" y2="6"/><line x1="13" y1="12" x2="21" y2="12"/><line x1="13" y1="18" x2="21" y2="18"/>',
+  chart: '<line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/>',
+  gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/>',
+};
+
 const nav = [
-  { href: '/dashboard', label: 'Inicio' },
-  { href: '/dashboard/alumnos', label: 'Alumnos' },
-  { href: '/dashboard/grupos', label: 'Grupos' },
-  { href: '/dashboard/instructores', label: 'Instructores' },
-  { href: '/dashboard/pagos', label: 'Pagos' },
-  { href: '/dashboard/asistencia', label: 'Asistencia' },
-  { href: '/dashboard/rubricas', label: 'Rúbricas' },
-  { href: '/dashboard/reportes', label: 'Reportes' },
+  { href: '/dashboard', label: 'Inicio', icon: 'home' },
+  { href: '/dashboard/alumnos', label: 'Alumnos', icon: 'users' },
+  { href: '/dashboard/grupos', label: 'Grupos', icon: 'layers' },
+  { href: '/dashboard/instructores', label: 'Instructores', icon: 'cap' },
+  { href: '/dashboard/pagos', label: 'Pagos', icon: 'card' },
+  { href: '/dashboard/asistencia', label: 'Asistencia', icon: 'check' },
+  { href: '/dashboard/rubricas', label: 'Rúbricas', icon: 'list' },
+  { href: '/dashboard/reportes', label: 'Reportes', icon: 'chart' },
   ...(session.profile.role === 'superadmin'
-    ? [{ href: '/dashboard/configuracion', label: 'Configuración' }]
+    ? [{ href: '/dashboard/configuracion', label: 'Configuración', icon: 'gear' }]
     : []),
 ];
 
 const isActive = (href: string) =>
   href === '/dashboard' ? path === '/dashboard' : path.startsWith(href);
+
+// Versión móvil: ítems agrupados por módulo para que la barra inferior
+// quepa sin scroll horizontal. Un grupo abre un panel con sus secciones.
+type MobileEntry =
+  | { kind: 'link'; label: string; icon: string; href: string }
+  | { kind: 'menu'; label: string; icon: string; id: string; children: { label: string; icon: string; href: string }[] };
+
+const mobileNav: MobileEntry[] = [
+  { kind: 'link', label: 'Inicio', icon: 'home', href: '/dashboard' },
+  { kind: 'link', label: 'Alumnos', icon: 'users', href: '/dashboard/alumnos' },
+  {
+    kind: 'menu',
+    label: 'Académico',
+    icon: 'book',
+    id: 'academico',
+    children: [
+      { label: 'Grupos', icon: 'layers', href: '/dashboard/grupos' },
+      { label: 'Instructores', icon: 'cap', href: '/dashboard/instructores' },
+      { label: 'Asistencia', icon: 'check', href: '/dashboard/asistencia' },
+      { label: 'Rúbricas', icon: 'list', href: '/dashboard/rubricas' },
+    ],
+  },
+  {
+    kind: 'menu',
+    label: 'Finanzas',
+    icon: 'wallet',
+    id: 'finanzas',
+    children: [
+      { label: 'Pagos', icon: 'card', href: '/dashboard/pagos' },
+      { label: 'Reportes', icon: 'chart', href: '/dashboard/reportes' },
+    ],
+  },
+  ...(session.profile.role === 'superadmin'
+    ? [{ kind: 'link' as const, label: 'Ajustes', icon: 'gear', href: '/dashboard/configuracion' }]
+    : []),
+];
+
+// Un grupo está activo si la ruta actual coincide con alguna de sus secciones.
+const groupActive = (e: MobileEntry) =>
+  e.kind === 'link' ? isActive(e.href) : e.children.some((c) => isActive(c.href));
+
+// Grupos con submenú (para renderizar sus paneles emergentes).
+const menuGroups = mobileNav.filter(
+  (e): e is Extract<MobileEntry, { kind: 'menu' }> => e.kind === 'menu',
+);
 
 const initial = session.profile.full_name.charAt(0).toUpperCase();
 ---
@@ -63,7 +123,8 @@ const initial = session.profile.full_name.charAt(0).toUpperCase();
           }
         </a>
 
-        <nav class="glass-soft no-scrollbar order-3 flex w-full gap-1 overflow-x-auto rounded-full p-1.5 sm:order-none sm:w-auto sm:flex-1 sm:justify-center">
+        <!-- Escritorio: diseño original de píldoras de texto -->
+        <nav class="glass-soft no-scrollbar order-3 hidden w-full gap-1 overflow-x-auto rounded-full p-1.5 sm:order-none sm:flex sm:w-auto sm:flex-1 sm:justify-center">
           {
             nav.map((item) => (
               <a
@@ -100,10 +161,66 @@ const initial = session.profile.full_name.charAt(0).toUpperCase();
         </div>
       </header>
 
-      <main class="dash-enter mt-6 sm:mt-8">
+      <main class="dash-enter mt-6 pb-24 sm:mt-8 sm:pb-0">
         {title && <h1 class="mb-6 text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h1>}
         <slot />
       </main>
     </div>
   </div>
+
+  {/* Menú móvil FUERA del panel .glass: así el position:fixed se ancla al
+      viewport (el backdrop-filter/transform del panel rompería el fixed). */}
+  <nav class="liquid-nav fixed inset-x-3 bottom-3 z-40 flex items-stretch justify-around gap-1 rounded-[1.6rem] p-2 sm:hidden">
+    {
+      mobileNav.map((entry) =>
+        entry.kind === 'link' ? (
+          <a
+            href={entry.href}
+            class={`liquid-item ${groupActive(entry) ? 'is-active' : ''}`}
+            aria-current={groupActive(entry) ? 'page' : undefined}
+          >
+            <span class="liquid-item__icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icons[entry.icon]} />
+            </span>
+            <span class="liquid-item__label">{entry.label}</span>
+          </a>
+        ) : (
+          <button
+            type="button"
+            popovertarget={`m-${entry.id}`}
+            class={`liquid-item ${groupActive(entry) ? 'is-active' : ''}`}
+            aria-label={entry.label}
+          >
+            <span class="liquid-item__icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icons[entry.icon]} />
+            </span>
+            <span class="liquid-item__label">{entry.label}</span>
+          </button>
+        ),
+      )
+    }
+  </nav>
+
+  {/* Paneles emergentes de cada grupo (Popover API nativa) */}
+  {
+    menuGroups.map((group) => (
+      <div id={`m-${group.id}`} popover="auto" class="liquid-sheet sm:hidden">
+        <p class="liquid-sheet__title">{group.label}</p>
+        <div class="flex flex-wrap gap-1">
+          {group.children.map((c) => (
+            <a
+              href={c.href}
+              class={`liquid-item flex-1 ${isActive(c.href) ? 'is-active' : ''}`}
+              aria-current={isActive(c.href) ? 'page' : undefined}
+            >
+              <span class="liquid-item__icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={icons[c.icon]} />
+              </span>
+              <span class="liquid-item__label">{c.label}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    ))
+  }
 </BaseLayout>
