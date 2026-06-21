@@ -1,0 +1,68 @@
+---
+// Aviso de actualización para la app nativa (Capacitor/Android).
+//
+// La APK es un WebView que carga el sitio desplegado, así que el CONTENIDO
+// (páginas/estilos/funciones) se actualiza solo al desplegar. Esto cubre el
+// otro caso: cuando hay una APK nueva (cambios nativos) y quieres avisar al
+// usuario dentro de la app para que la descargue, sin reinstalar a mano.
+//
+// Flujo:
+//   1) Lee la versión instalada (versionCode) con @capacitor/app.
+//   2) Descarga /app-version.json de tu sitio.
+//   3) Si la versión del manifiesto es mayor, muestra el aviso y, si acepta,
+//      abre el enlace del APK en el navegador (descarga + instalación).
+//
+// En navegador normal (no nativo) no hace nada.
+---
+
+<script>
+  import { Capacitor } from '@capacitor/core';
+  import { App } from '@capacitor/app';
+  import { confirmDialog } from '@/lib/dialog';
+
+  async function checkForUpdate() {
+    try {
+      // Solo dentro de la app nativa (en web no aplica).
+      if (!Capacitor.isNativePlatform()) return;
+      // Una sola vez por sesión de la app (no molestar en cada pantalla).
+      if (sessionStorage.getItem('dione_update_seen')) return;
+
+      const info = await App.getInfo();
+      const installed = Number(info.build || '0'); // versionCode instalado
+
+      const res = await fetch('/app-version.json?t=' + Date.now(), {
+        cache: 'no-store',
+      });
+      if (!res.ok) return;
+      const manifest = await res.json();
+      const latest = Number(manifest.latestVersionCode || '0');
+
+      // No hay nada más nuevo que lo instalado.
+      if (!latest || latest <= installed) return;
+
+      sessionStorage.setItem('dione_update_seen', '1');
+
+      const quiere = await confirmDialog(
+        '🚀 Hay una nueva versión de la aplicación disponible. Actualice ahora ' +
+          'para acceder a mejoras de rendimiento, correcciones de errores y ' +
+          'nuevas funcionalidades.' +
+          (manifest.latestVersion ? `\n\nVersión ${manifest.latestVersion}` : '') +
+          (manifest.notes ? `\n${manifest.notes}` : ''),
+        {
+          title: 'Actualización disponible',
+          confirmText: 'Actualizar ahora',
+          cancelText: 'Ahora no',
+        },
+      );
+
+      if (quiere && manifest.apkUrl) {
+        // _blank abre el navegador del sistema → descarga el APK.
+        window.open(manifest.apkUrl, '_blank');
+      }
+    } catch {
+      // Silencioso: el aviso nunca debe romper la app.
+    }
+  }
+
+  checkForUpdate();
+</script>
