@@ -245,6 +245,23 @@ try {
         cards.forEach(bindTilt);
         setupCounters();
         revealRows();
+        updateNavActive();
+      }
+
+      // Actualiza el ítem activo del menú móvil (que persiste entre
+      // navegaciones con transition:persist) según la ruta actual.
+      function updateNavActive() {
+        const path = location.pathname;
+        const hit = (h: string) =>
+          h === '/dashboard'
+            ? path === '/dashboard'
+            : path === h || path.startsWith(h + '/');
+        document.querySelectorAll<HTMLElement>('[data-match]').forEach((el) => {
+          const active = (el.dataset.match || '').split(',').some(hit);
+          el.classList.toggle('is-active', active);
+          if (active) el.setAttribute('aria-current', 'page');
+          else el.removeAttribute('aria-current');
+        });
       }
 
       // Red de seguridad: revela cualquier [data-aos] que, por la razón que
