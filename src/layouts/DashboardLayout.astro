@@ -169,13 +169,20 @@ const initial = session.profile.full_name.charAt(0).toUpperCase();
   </div>
 
   {/* Menú móvil FUERA del panel .glass: así el position:fixed se ancla al
-      viewport (el backdrop-filter/transform del panel rompería el fixed). */}
-  <nav class="liquid-nav fixed inset-x-3 bottom-3 z-40 flex items-stretch justify-around gap-1 rounded-[1.6rem] p-2 sm:hidden">
+      viewport (el backdrop-filter/transform del panel rompería el fixed).
+      transition:persist => no se re-renderiza al navegar (no parpadea); el
+      ítem activo se actualiza por JS en cada astro:page-load. z alto para
+      mantenerse visible sobre el skeleton de carga. */}
+  <nav
+    class="liquid-nav fixed inset-x-3 bottom-3 z-[101] flex items-stretch justify-around gap-1 rounded-[1.6rem] p-2 sm:hidden"
+    transition:persist="mobile-nav"
+  >
     {
       mobileNav.map((entry) =>
         entry.kind === 'link' ? (
           <a
             href={entry.href}
+            data-match={entry.href}
             class={`liquid-item ${groupActive(entry) ? 'is-active' : ''}`}
             aria-current={groupActive(entry) ? 'page' : undefined}
           >
@@ -188,6 +195,7 @@ const initial = session.profile.full_name.charAt(0).toUpperCase();
           <button
             type="button"
             popovertarget={`m-${entry.id}`}
+            data-match={entry.children.map((c) => c.href).join(',')}
             class={`liquid-item ${groupActive(entry) ? 'is-active' : ''}`}
             aria-label={entry.label}
           >
@@ -210,6 +218,7 @@ const initial = session.profile.full_name.charAt(0).toUpperCase();
           {group.children.map((c) => (
             <a
               href={c.href}
+              data-match={c.href}
               class={`liquid-item flex-1 ${isActive(c.href) ? 'is-active' : ''}`}
               aria-current={isActive(c.href) ? 'page' : undefined}
             >
