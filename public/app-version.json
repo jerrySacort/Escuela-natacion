@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 1,
-  "latestVersion": "1.0.0",
+  "latestVersionCode": 2,
+  "latestVersion": "1.0.1",
   "apkUrl": "https://github.com/jerrySacort/Escuela-natacion/releases/latest/download/dione-acuatica.apk",
-  "notes": "Versión inicial."
+  "notes": "Aviso de actualización in-app, menú móvil liquid glass y animaciones."
 }
